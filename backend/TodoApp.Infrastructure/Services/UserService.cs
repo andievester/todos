@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApi.DTOs;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
 using TodoApp.Domain.Models;

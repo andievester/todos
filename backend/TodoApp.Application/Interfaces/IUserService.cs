@@ -1,4 +1,3 @@
-using TodoApi.DTOs;
 using TodoApp.Application.DTOs;
 
 namespace TodoApp.Application.Interfaces;

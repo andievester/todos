@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TodoApi.DTOs
+namespace TodoApp.Application.DTOs
 {
     public record CreateTodoItemRequest(
         [Required] string Title,
