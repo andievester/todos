@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
+/* TODO: do we need orange? */
 @theme {
   --font-poppins: "Poppins", sans-serif;
 
@@ -12,6 +13,9 @@
   --color-orange: #ff8f44;
   --color-yellow: #ffda36;
   --color-green: #4ade80;
+
+  --color-destructive: var(--color-red);
+  --color-success: var(--color-green);
 }
 
 @layer base {

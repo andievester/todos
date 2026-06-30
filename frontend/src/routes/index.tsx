@@ -1,13 +1,17 @@
 import { useRoutes, Navigate } from "react-router-dom";
 import { TodosRoutes } from "@/features/todos";
-// import { AuthRoutes } from '@/features/auth'; <-- You will add this later
+import { AuthRoutes } from "@/features/auth";
 
 export const AppRoutes = () => {
   const routes = useRoutes([
-    // If they go to /todos, load the Todos feature
+    // Todos remain under /todos/*
     { path: "/todos/*", element: <TodosRoutes /> },
 
-    // Default redirect (e.g., send them to todos on load for now)
+    // Auth routes are now at the root
+    ...AuthRoutes,
+
+    // Default redirects
+    { path: "/", element: <Navigate to="/todos" replace /> },
     { path: "*", element: <Navigate to="/todos" replace /> },
   ]);
 
