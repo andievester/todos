@@ -33,7 +33,6 @@ namespace TodoApp.Infrastructure.Services
 
             var user = new User
             {
-                Username = req.Username,
                 Email = req.Email,
                 PasswordHash = hashedPassword
             };

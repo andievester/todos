@@ -21,7 +21,7 @@ namespace TodoApp.Web.Endpoints
                     return Results.BadRequest(result.ErrorMessage);
                 }
 
-                return Results.Ok(new { result.User!.Id, result.User.Username, result.User.Email });
+                return Results.Ok(new { result.User!.Id, result.User.Email });
             });
 
             auth.MapPost("/login", async (LoginRequest req, IAuthService service) =>

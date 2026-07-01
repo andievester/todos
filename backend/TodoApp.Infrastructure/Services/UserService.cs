@@ -21,7 +21,6 @@ namespace TodoApp.Infrastructure.Services
 
             var user = new User
             {
-                Username = req.Username,
                 Email = req.Email,
                 PasswordHash = hashedPassword
             };
@@ -29,7 +28,7 @@ namespace TodoApp.Infrastructure.Services
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
             
-            return new UserResponse(user.Id, user.Username, user.Email);
+            return new UserResponse(user.Id,  user.Email);
         }
 
         public async Task<List<UserWithTodosResponse>> GetAllUsersAsync()
@@ -40,7 +39,6 @@ namespace TodoApp.Infrastructure.Services
 
             return users.Select(u => new UserWithTodosResponse(
                 u.Id, 
-                u.Username, 
                 u.Email, 
                 u.TodoList.Select(t => new TodoItemResponse(
                     t.Id, 
@@ -62,8 +60,7 @@ namespace TodoApp.Infrastructure.Services
 
             return user is not null 
                 ? new UserWithTodosResponse(
-                    user.Id, 
-                    user.Username, 
+                    user.Id,  
                     user.Email, 
                     user.TodoList.Select(t => new TodoItemResponse(
                         t.Id, 

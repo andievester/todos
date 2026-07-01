@@ -28,31 +28,41 @@ import { CalendarIcon, Check, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/components/lib/utils";
+import type { TodoFormData } from "../types";
+
+const PRIORITY_MAP = {
+  0: { label: "Low", colorClass: "text-green" },
+  1: { label: "Medium", colorClass: "text-yellow" },
+  2: { label: "High", colorClass: "text-red" },
+} as const;
 
 const todoSchema = z.object({
   title: z.string().min(1, "Title is required."),
   description: z.string().optional(),
-  isCompleted: z.boolean(),
-  dueDate: z.string().optional(),
-  priority: z.string().min(1, "Please select a priority level."),
+  isCompleted: z.boolean().optional(),
+  dueDate: z.date().optional(),
+  priority: z.number().optional(),
 });
 
 export type TodoFormValues = z.infer<typeof todoSchema>;
 
+//TODO: series of clicks around date/priority picker closes the modal
+//TODO: make priority optional
+
 interface TodoFormProps {
-  initialData?: TodoFormValues | null;
+  initialData?: TodoFormData | null;
   onCancel?: () => void;
 }
 
 export function TodoForm({ initialData, onCancel }: TodoFormProps) {
   const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
-    defaultValues: initialData || {
-      title: "",
-      description: "",
-      isCompleted: false,
-      dueDate: "",
-      priority: "medium",
+    defaultValues: {
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      isCompleted: initialData?.isCompleted || false,
+      priority: initialData?.priority ?? undefined,
+      dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
     },
   });
 
@@ -103,6 +113,7 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
           )}
         />
 
+        {/* TODO: show date as selected in picker */}
         <Controller
           name="dueDate"
           control={form.control}
@@ -135,9 +146,8 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value}
+                    selected={field.value ? new Date(field.value) : undefined}
                     onSelect={field.onChange}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -149,40 +159,49 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
         <Controller
           name="priority"
           control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="priority-select">Priority</FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger
-                  id="priority-select"
-                  aria-invalid={fieldState.invalid}
-                  className={cn(
-                    field.value === "low" && "text-green",
-                    field.value === "medium" && "text-yellow",
-                    field.value === "high" && "text-red"
-                  )}
-                >
-                  <SelectValue placeholder="Select a priority" />
-                </SelectTrigger>
+          render={({ field, fieldState }) => {
+            const selectedPriority =
+              field.value !== undefined
+                ? PRIORITY_MAP[field.value as keyof typeof PRIORITY_MAP]
+                : undefined;
 
-                <SelectContent position="popper">
-                  <SelectItem value="low" className="text-green cursor-pointer">
-                    Low
-                  </SelectItem>
-                  <SelectItem
-                    value="medium"
-                    className="text-yellow cursor-pointer"
+            return (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="priority-select">Priority</FieldLabel>
+                <Select
+                  onValueChange={(val) =>
+                    field.onChange(val === "" ? undefined : Number(val))
+                  }
+                  value={field.value?.toString() ?? ""}
+                >
+                  <SelectTrigger
+                    id="priority-select"
+                    aria-invalid={fieldState.invalid}
+                    className={cn(selectedPriority?.colorClass)}
                   >
-                    Medium
-                  </SelectItem>
-                  <SelectItem value="high" className="text-red cursor-pointer">
-                    High
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+                    <SelectValue placeholder="Select a priority" />
+                  </SelectTrigger>
+
+                  <SelectContent position="popper">
+                    {Object.entries(PRIORITY_MAP).map(
+                      ([key, { label, colorClass }]) => (
+                        <SelectItem
+                          key={key}
+                          value={key}
+                          className={cn("cursor-pointer", colorClass)}
+                        >
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            );
+          }}
         />
 
         <Controller
@@ -211,12 +230,12 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
       </FieldGroup>
 
       <div className="flex items-center gap-3 pt-4">
-        <Button onClick={onCancel} className="btn-surface btn-lg">
+        <Button type="button" onClick={onCancel} className="btn-surface btn-lg">
           <X className="text-red" strokeWidth={3} />
           <span>Cancel</span>
         </Button>
         <Button type="submit" form="todo-form" className="btn-surface btn-lg">
-          <Check className="text-green" strokeWidth={3}></Check>
+          <Check className="text-green" strokeWidth={3} />
           <span>Save Todo</span>
         </Button>
       </div>

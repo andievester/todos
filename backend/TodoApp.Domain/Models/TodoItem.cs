@@ -17,6 +17,5 @@ namespace TodoApp.Domain.Models
         public int Priority { get; set; }
 
         public Guid UserId { get; set; }
-        public User? User { get; set; }
     }
 }

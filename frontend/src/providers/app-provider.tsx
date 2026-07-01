@@ -7,12 +7,14 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
+// TODO: style toast
+
 export const AppProvider = ({ children }: AppProviderProps) => {
   return (
     <AuthProvider>
       <BrowserRouter>
         {children}
-        <Toaster />
+        <Toaster position="top-center" />
       </BrowserRouter>
     </AuthProvider>
   );

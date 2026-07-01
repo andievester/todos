@@ -11,7 +11,7 @@ using TodoApp.Infrastructure.Data;
 namespace TodoApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260629180937_InitialCreate")]
+    [Migration("20260701162037_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -69,10 +69,6 @@ namespace TodoApp.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -1,14 +1,27 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { TodosHeader } from "../components/TodosHeader";
-import { TodosTable, type TodoItem } from "../components/TodosTable";
+import { TodosTable } from "../components/TodosTable";
 import { TodoModal } from "../components/TodoModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { getTodos } from "../components/services/todos-service";
+import type { TodoItem } from "../types";
+import type { TodoFormValues } from "../components/TodoForm";
 
 export const TodosPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
+  const [editingTodo, setEditingTodo] = useState<TodoFormValues | null>(null);
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
+
+  const {
+    data: todos = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["todos"],
+    queryFn: getTodos,
+  });
 
   const handleOpenNew = () => {
     setEditingTodo(null);
@@ -16,9 +29,20 @@ export const TodosPage = () => {
   };
 
   const handleEdit = (todo: TodoItem) => {
-    setEditingTodo(todo);
+    const todoForForm = {
+      ...todo,
+      dueDate: todo.dueDate ? new Date(todo.dueDate) : undefined,
+    };
+
+    setEditingTodo(todoForForm);
     setIsModalOpen(true);
   };
+
+  const displayedTodos = showCompleted
+    ? todos
+    : todos.filter((todo) => !todo.isCompleted);
+
+  console.log("displayedtodos:", displayedTodos);
 
   return (
     <div className="page-root">
@@ -37,7 +61,17 @@ export const TodosPage = () => {
           </div>
 
           <div className="min-h-0 rounded-2xl bg-surface px-4 pb-2 flex w-full flex-col border border-input drop-shadow-sm">
-            <TodosTable onRowClick={handleEdit} />
+            {isLoading ? (
+              <div className="p-4 text-center text-muted-foreground">
+                Loading...
+              </div>
+            ) : isError ? (
+              <div className="p-4 text-center text-destructive">
+                Failed to load todos.
+              </div>
+            ) : (
+              <TodosTable todos={displayedTodos} onRowClick={handleEdit} />
+            )}
           </div>
         </div>
       </main>

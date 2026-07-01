@@ -19,96 +19,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DeleteTodoModal } from "./DeleteTodoModal";
+import type { TodoItem } from "../types";
 
 export type Priority = "Low" | "Medium" | "High";
 
-type User = {
+export type User = {
   id: string;
   name: string;
 };
-
-export type TodoItem = {
-  id: string;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  createdAt: Date;
-  dueDate: Date;
-  priority: Priority;
-  userId: string;
-  user: User;
-};
-
-const mockUser: User = { id: "u-1", name: "Alex" };
-
-const initialData: TodoItem[] = [
-  {
-    id: "4",
-    title: "Fix broken build pipeline",
-    description: "Urgent fix required",
-    isCompleted: false,
-    createdAt: new Date("2026-06-01T00:00:00"),
-    dueDate: new Date("2026-06-20T00:00:00"),
-    priority: "High",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "1",
-    title: "Update security dependencies",
-    description: "Bump all npm packages to patch CVEs",
-    isCompleted: false,
-    createdAt: new Date("2026-06-25T00:00:00"),
-    dueDate: new Date("2026-07-02T00:00:00"),
-    priority: "High",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "2",
-    title: "Write documentation for Sync API",
-    description: "Cover the interleaving algorithm",
-    isCompleted: false,
-    createdAt: new Date("2026-06-28T00:00:00"),
-    dueDate: new Date("2026-07-05T00:00:00"),
-    priority: "Medium",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "3",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: false,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-08-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "4",
-    title: "Completed Task 1",
-    description: "",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-07-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "5",
-    title: "Completed Task 2",
-    description: "",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-];
 
 const columnHelper = createColumnHelper<TodoItem>();
 
@@ -131,18 +49,15 @@ const getColumnClasses = (columnId: string) => {
 // TODO: pass in value for show completed and filter tasks
 
 interface TodosTableProps {
+  todos: TodoItem[];
   onRowClick?: (todo: TodoItem) => void;
 }
 
-export const TodosTable = ({ onRowClick }: TodosTableProps) => {
-  const [data, setData] = useState<TodoItem[]>(initialData);
+export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
-
-  // const handleDelete = (id: string) => {
-  //   setData((prev) => prev.filter((item) => item.id !== id));
-  // };
-
   const [isDeleting, setIsDeleting] = useState(false);
+
+  console.log("table data:", todos);
 
   const columns = [
     columnHelper.accessor("title", {
@@ -157,10 +72,12 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
         </Button>
       ),
       cell: (info) => {
-        // Only mark as overdue if the date has passed AND it is not completed
-        const isOverdue =
-          isBefore(info.row.original.dueDate, startOfDay(new Date())) &&
-          !info.row.original.isCompleted;
+        const dueDate = info.row.original.dueDate;
+
+        const isOverdue = dueDate
+          ? isBefore(new Date(dueDate), startOfDay(new Date())) &&
+            !info.row.original.isCompleted
+          : false;
 
         return (
           <div className="flex items-center gap-3">
@@ -170,7 +87,7 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
               </span>
             )}
             <span className="text-text-primary font-medium">
-              {info.getValue()}
+              {info.getValue() as string}
             </span>
           </div>
         );
@@ -188,16 +105,23 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
         </Button>
       ),
       cell: (info) => {
-        // Only mark as overdue if the date has passed AND it is not completed
-        const isOverdue =
-          isBefore(info.row.original.dueDate, startOfDay(new Date())) &&
-          !info.row.original.isCompleted;
+        const dateValue = info.getValue() as string | undefined;
+        const dueDate = info.row.original.dueDate;
+
+        const isOverdue = dueDate
+          ? isBefore(new Date(dueDate), startOfDay(new Date())) &&
+            !info.row.original.isCompleted
+          : false;
+
+        if (!dateValue) {
+          return <span className="text-text-primary">—</span>;
+        }
 
         return (
           <span
             className={isOverdue ? "text-red font-medium" : "text-text-primary"}
           >
-            {format(info.getValue(), "MMM d, yyyy")}
+            {format(new Date(dateValue), "MMM d, yyyy")}
           </span>
         );
       },
@@ -216,15 +140,22 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
         </div>
       ),
       cell: (info) => {
-        const priority = info.getValue();
-        const colorClass =
-          priority === "High"
-            ? "text-red"
-            : priority === "Medium"
-            ? "text-yellow"
-            : "text-green";
+        const priorityValue = Number(info.getValue());
 
-        return <span className={`${colorClass}`}>{priority}</span>;
+        // TODO: consider usage of enum on backend? or refactor this
+        const priorityMap: Record<
+          number,
+          { label: string; colorClass: string }
+        > = {
+          0: { label: "Low", colorClass: "text-green font-semibold" },
+          1: { label: "Medium", colorClass: "text-yellow font-semibold" },
+          2: { label: "High", colorClass: "text-red font-semibold" },
+        };
+
+        const { label, colorClass } =
+          priorityMap[priorityValue] || priorityMap[0];
+
+        return <span className={colorClass}>{label}</span>;
       },
     }),
     columnHelper.display({
@@ -251,6 +182,7 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
               onOpenChange={setIsDeleting}
               onConfirm={() => {
                 console.log(id);
+                // TODO: Wire up actual deletion logic here via a prop
                 setIsDeleting(false);
               }}
               todoTitle={title}
@@ -264,7 +196,7 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
   // TODO: check this warning
 
   const table = useReactTable({
-    data,
+    data: todos,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
