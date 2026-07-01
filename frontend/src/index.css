@@ -14,7 +14,19 @@
   --color-yellow: #ffda36;
   --color-green: #4ade80;
 
+  --color-foreground: var(--color-text-primary);
+
+  --color-popover: var(--color-background);
+  --color-popover-foreground: var(--color-text-primary);
+
+  --color-muted: var(--color-surface);
+  --color-muted-foreground: var(--color-text-primary);
+
+  --color-border: var(--color-surface);
+
+  /* States */
   --color-destructive: var(--color-red);
+  --color-destructive-foreground: var(--color-text-primary);
   --color-success: var(--color-green);
 }
 

@@ -203,7 +203,13 @@ const getColumnClasses = (columnId: string) => {
   }
 };
 
-export const TodosTable = () => {
+// TODO: refactor some of this
+
+interface TodosTableProps {
+  onRowClick?: (todo: TodoItem) => void;
+}
+
+export const TodosTable = ({ onRowClick }: TodosTableProps) => {
   const [data, setData] = useState<TodoItem[]>(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -253,11 +259,20 @@ export const TodosTable = () => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: (info) => (
-        <span className="text-text-primary/80">
-          {format(info.getValue(), "MMM d, yyyy")}
-        </span>
-      ),
+      cell: (info) => {
+        const isOverdue = isBefore(
+          info.row.original.dueDate,
+          startOfDay(new Date())
+        );
+
+        return (
+          <span
+            className={isOverdue ? "text-red font-medium" : "text-text-primary"}
+          >
+            {format(info.getValue(), "MMM d, yyyy")}
+          </span>
+        );
+      },
     }),
     columnHelper.accessor("priority", {
       header: ({ column }) => (
@@ -297,12 +312,14 @@ export const TodosTable = () => {
             }}
             className="text-text-primary/50 hover:text-red hover:bg-red/10"
           >
-            <X className="h-5 w-5" />
+            <X strokeWidth={3} />
           </Button>
         </div>
       ),
     }),
   ];
+
+  // TODO: check this warning
 
   const table = useReactTable({
     data,
@@ -321,11 +338,11 @@ export const TodosTable = () => {
         <Table className="table-fixed border-separate border-spacing-0 border-none bg-transparent w-full">
           <TableHeader className="border-none [&_tr]:border-none">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={`border-b border-input pb-3 pt-2 text-text-primary ${getColumnClasses(
+                    className={`border-b border-input py-2 text-text-primary ${getColumnClasses(
                       header.column.id
                     )}`}
                   >
@@ -350,7 +367,8 @@ export const TodosTable = () => {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="group border-none bg-input drop-shadow-sm transition-all hover:brightness-110 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl"
+                  onClick={() => onRowClick?.(row.original)}
+                  className="group border-none bg-input drop-shadow-sm transition-all hover:bg-input/80 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
