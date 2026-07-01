@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
 
@@ -5,7 +8,7 @@ namespace TodoApp.Web.Endpoints
 {
     public static class AuthEndpoints
     {
-        public static void MapAuthEndpoints(this WebApplication app)
+        public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
         {
             var auth = app.MapGroup("/api/auth");
 
@@ -23,14 +26,14 @@ namespace TodoApp.Web.Endpoints
 
             auth.MapPost("/login", async (LoginRequest req, IAuthService service) =>
             {
-                var isValid = await service.LoginAsync(req);
+                var token = await service.LoginAsync(req);
 
-                if (!isValid)
+                if (string.IsNullOrEmpty(token))
                 {
                     return Results.Unauthorized();
                 }
 
-                return Results.Ok(new { Message = "Login successful!" });
+                return Results.Ok(new { Token = token });
             });
         }
     }

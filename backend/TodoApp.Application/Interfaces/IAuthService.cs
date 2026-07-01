@@ -6,5 +6,5 @@ namespace TodoApp.Application.Interfaces;
 public interface IAuthService
 {
     Task<(bool Success, string ErrorMessage, User? User)> RegisterAsync(RegisterRequest req);
-    Task<bool> LoginAsync(LoginRequest req);
+    Task<string?> LoginAsync(LoginRequest req);
 }

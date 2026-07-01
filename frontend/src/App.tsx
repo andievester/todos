@@ -1,12 +1,11 @@
-import { BrowserRouter } from "react-router-dom";
-import { AppRoutes } from "./routes";
-import "./App.css";
+import { AppProvider } from "@/providers/app-provider";
+import { AppRoutes } from "@/routes";
 
 function App() {
   return (
-    <BrowserRouter>
+    <AppProvider>
       <AppRoutes />
-    </BrowserRouter>
+    </AppProvider>
   );
 }
 

@@ -15,9 +15,11 @@ namespace TodoApp.Infrastructure.Services
             _db = db;
         }
 
-        public async Task<List<TodoItemResponse>> GetAllTodoItemsAsync()
+        public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId)
         {
-            var items = await _db.TodoItems.ToListAsync();
+            var items = await _db.TodoItems
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
             
             return items.Select(t => new TodoItemResponse(
                 t.Id, 
@@ -30,7 +32,7 @@ namespace TodoApp.Infrastructure.Services
             )).ToList();
         }
 
-        public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req)
+        public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req, Guid userId)
         {
             var todoItem = new TodoItem
             {
@@ -39,7 +41,7 @@ namespace TodoApp.Infrastructure.Services
                 IsCompleted = req.IsCompleted,
                 DueDate = req.DueDate,
                 Priority = req.Priority,
-                UserId = req.UserId
+                UserId = userId
             };
 
             _db.TodoItems.Add(todoItem);

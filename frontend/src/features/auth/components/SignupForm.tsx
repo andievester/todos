@@ -11,6 +11,8 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { registerUser } from "../services/auth-service";
+import { toast } from "sonner";
 
 const signupSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
@@ -26,14 +28,24 @@ export function SignupForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit(data: SignupFormValues) {
-    console.log("Creating account for:", data);
-    // TODO: Call your signup API
+  async function onSubmit(data: SignupFormValues) {
+    try {
+      // TODO: don't necessarily need the token back if you're redirecting to login,
+      // but the backend will return it.
+      await registerUser(data);
 
-    // Redirect to login upon success
-    navigate("/login");
+      navigate("/login");
+      toast.success("Registration successful.", {
+        description: "Please log in with your new credentials.",
+      });
+    } catch (error) {
+      console.error(error);
+      form.setError("root", {
+        message:
+          "Registration failed. Please check your details and try again.",
+      });
+    }
   }
-
   return (
     <form
       id="signup-form"

@@ -1,19 +1,22 @@
-import { useRoutes, Navigate } from "react-router-dom";
-import { TodosRoutes } from "@/features/todos";
 import { AuthRoutes } from "@/features/auth";
+import { ProtectedRoute } from "@/features/auth/components/ProtectedRoute";
+import { TodosRoutes } from "@/features/todos";
+import { useRoutes, Navigate } from "react-router-dom";
 
 export const AppRoutes = () => {
-  const routes = useRoutes([
-    // Todos remain under /todos/*
-    { path: "/todos/*", element: <TodosRoutes /> },
-
-    // Auth routes are now at the root
+  return useRoutes([
     ...AuthRoutes,
 
-    // Default redirects
+    {
+      path: "/todos",
+      element: (
+        <ProtectedRoute>
+          <TodosRoutes />
+        </ProtectedRoute>
+      ),
+    },
+
     { path: "/", element: <Navigate to="/todos" replace /> },
     { path: "*", element: <Navigate to="/todos" replace /> },
   ]);
-
-  return <>{routes}</>;
 };
