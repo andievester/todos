@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DeleteTodoModal } from "./DeleteTodoModal";
 
 export type Priority = "Low" | "Medium" | "High";
 
@@ -26,7 +27,7 @@ type User = {
   name: string;
 };
 
-type TodoItem = {
+export type TodoItem = {
   id: string;
   title: string;
   description: string;
@@ -78,105 +79,28 @@ const initialData: TodoItem[] = [
     id: "3",
     title: "Refactor layout structure",
     description: "Move layouts to feature folders",
-    isCompleted: true,
+    isCompleted: false,
     createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
+    dueDate: new Date("2026-08-30T00:00:00"),
     priority: "Low",
     userId: mockUser.id,
     user: mockUser,
   },
   {
-    id: "83",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
+    id: "4",
+    title: "Completed Task 1",
+    description: "",
     isCompleted: true,
     createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
+    dueDate: new Date("2026-07-30T00:00:00"),
     priority: "Low",
     userId: mockUser.id,
     user: mockUser,
   },
   {
-    id: "73",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "63",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "53",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "43",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "33",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "23",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "15",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
-    isCompleted: true,
-    createdAt: new Date("2026-06-29T00:00:00"),
-    dueDate: new Date("2026-06-30T00:00:00"),
-    priority: "Low",
-    userId: mockUser.id,
-    user: mockUser,
-  },
-  {
-    id: "12",
-    title: "Refactor layout structure",
-    description: "Move layouts to feature folders",
+    id: "5",
+    title: "Completed Task 2",
+    description: "",
     isCompleted: true,
     createdAt: new Date("2026-06-29T00:00:00"),
     dueDate: new Date("2026-06-30T00:00:00"),
@@ -204,6 +128,7 @@ const getColumnClasses = (columnId: string) => {
 };
 
 // TODO: refactor some of this
+// TODO: pass in value for show completed and filter tasks
 
 interface TodosTableProps {
   onRowClick?: (todo: TodoItem) => void;
@@ -213,9 +138,11 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
   const [data, setData] = useState<TodoItem[]>(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
-  };
+  // const handleDelete = (id: string) => {
+  //   setData((prev) => prev.filter((item) => item.id !== id));
+  // };
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const columns = [
     columnHelper.accessor("title", {
@@ -230,10 +157,11 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
         </Button>
       ),
       cell: (info) => {
-        const isOverdue = isBefore(
-          info.row.original.dueDate,
-          startOfDay(new Date())
-        );
+        // Only mark as overdue if the date has passed AND it is not completed
+        const isOverdue =
+          isBefore(info.row.original.dueDate, startOfDay(new Date())) &&
+          !info.row.original.isCompleted;
+
         return (
           <div className="flex items-center gap-3">
             {isOverdue && (
@@ -260,10 +188,10 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
         </Button>
       ),
       cell: (info) => {
-        const isOverdue = isBefore(
-          info.row.original.dueDate,
-          startOfDay(new Date())
-        );
+        // Only mark as overdue if the date has passed AND it is not completed
+        const isOverdue =
+          isBefore(info.row.original.dueDate, startOfDay(new Date())) &&
+          !info.row.original.isCompleted;
 
         return (
           <span
@@ -301,21 +229,35 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
     }),
     columnHelper.display({
       id: "actions",
-      cell: (info) => (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(info.row.original.id);
-            }}
-            className="text-text-primary/50 hover:text-red hover:bg-red/10"
-          >
-            <X strokeWidth={3} />
-          </Button>
-        </div>
-      ),
+      cell: (info) => {
+        const { id, title } = info.row.original;
+
+        return (
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleting(true);
+              }}
+              className="text-text-primary/50 hover:text-red hover:bg-red/10"
+            >
+              <X strokeWidth={3} />
+            </Button>
+
+            <DeleteTodoModal
+              open={isDeleting}
+              onOpenChange={setIsDeleting}
+              onConfirm={() => {
+                console.log(id);
+                setIsDeleting(false);
+              }}
+              todoTitle={title}
+            />
+          </div>
+        );
+      },
     }),
   ];
 
@@ -334,7 +276,7 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="pr-2 z-10 bg-surface">
+      <div className="z-10 bg-surface">
         <Table className="table-fixed border-separate border-spacing-0 border-none bg-transparent w-full">
           <TableHeader className="border-none [&_tr]:border-none">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -359,8 +301,7 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
           </TableHeader>
         </Table>
       </div>
-
-      <div className="flex-1 overflow-y-auto pr-2 pt-2">
+      <div className="flex-1 overflow-y-auto pt-2">
         <Table className="table-fixed border-separate border-spacing-y-2 border-none bg-transparent w-full">
           <TableBody>
             {table.getRowModel().rows?.length ? (
@@ -368,12 +309,19 @@ export const TodosTable = ({ onRowClick }: TodosTableProps) => {
                 <TableRow
                   key={row.id}
                   onClick={() => onRowClick?.(row.original)}
-                  className="group border-none bg-input drop-shadow-sm transition-all hover:bg-input/80 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl"
+                  className={`group border-none bg-input drop-shadow-sm transition-all hover:bg-input/80 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl ${
+                    row.original.isCompleted ? "line-through opacity-60" : ""
+                  }`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className={`py-2 ${getColumnClasses(cell.column.id)}`}
+                      onClick={(e) => {
+                        if (cell.column.id === "actions") {
+                          e.stopPropagation();
+                        }
+                      }}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

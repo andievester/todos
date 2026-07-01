@@ -15,7 +15,7 @@ export const TodosHeader = ({ onOpenNewTodo }: TodosHeaderProps) => {
           <Plus className="text-green" strokeWidth={3} />
         </Button>
       </div>
-      <Button>
+      <Button className="p-0">
         <LogOut className="text-red" strokeWidth={3} />
         <span>Logout</span>
       </Button>
