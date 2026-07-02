@@ -6,18 +6,11 @@ using TodoApp.Infrastructure.Data;
 
 namespace TodoApp.Infrastructure.Services
 {
-    public class TodoItemService : ITodoItemService
+    public class TodoItemService(AppDbContext db) : ITodoItemService
     {
-        private readonly AppDbContext _db;
-
-        public TodoItemService(AppDbContext db)
-        {
-            _db = db;
-        }
-
         public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId)
         {
-            var items = await _db.TodoItems
+            var items = await db.TodoItems
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
             
@@ -44,8 +37,8 @@ namespace TodoApp.Infrastructure.Services
                 UserId = userId
             };
 
-            _db.TodoItems.Add(todoItem);
-            await _db.SaveChangesAsync();
+            db.TodoItems.Add(todoItem);
+            await db.SaveChangesAsync();
             
             return new TodoItemResponse(
                 todoItem.Id, 
@@ -60,7 +53,7 @@ namespace TodoApp.Infrastructure.Services
         
         public async Task<TodoItemResponse?> UpdateTodoItemAsync(int id, UpdateTodoItemRequest req, Guid userId)
         {
-            var todoItem = await _db.TodoItems
+            var todoItem = await db.TodoItems
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
 
             if (todoItem == null)
@@ -74,7 +67,7 @@ namespace TodoApp.Infrastructure.Services
             todoItem.DueDate = req.DueDate;
             todoItem.Priority = req.Priority;
 
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
             return new TodoItemResponse(
                 todoItem.Id,
@@ -89,7 +82,7 @@ namespace TodoApp.Infrastructure.Services
         
         public async Task<bool> DeleteTodoItemAsync(int id, Guid userId)
         {
-            var todoItem = await _db.TodoItems
+            var todoItem = await db.TodoItems
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
 
             if (todoItem == null)
@@ -97,8 +90,8 @@ namespace TodoApp.Infrastructure.Services
                 return false; 
             }
 
-            _db.TodoItems.Remove(todoItem);
-            await _db.SaveChangesAsync();
+            db.TodoItems.Remove(todoItem);
+            await db.SaveChangesAsync();
 
             return true;
         }

@@ -21,6 +21,7 @@ import {
 import { DeleteTodoModal } from "./DeleteTodoModal";
 import type { TodoItem } from "../types";
 import { PRIORITY_MAP } from "@/utils/constants";
+import { cn } from "@/components/lib/utils";
 
 export type User = {
   id: string;
@@ -93,7 +94,7 @@ export const TodosTable = ({
         return (
           <div className="flex items-center gap-3">
             {isOverdue && (
-              <span className="text-[10px] text-red border border-red rounded px-1.5 py-0.5 uppercase tracking-wider">
+              <span className="text-[10px] text-red border border-red rounded px-1.5 py-0.5 uppercase tracking-wider font-semibold">
                 Overdue
               </span>
             )}
@@ -125,12 +126,16 @@ export const TodosTable = ({
           : false;
 
         if (!dateValue) {
-          return <span className="text-text-primary">—</span>;
+          return <span className="text-text-primary font-medium">—</span>;
         }
 
         return (
           <span
-            className={isOverdue ? "text-red font-medium" : "text-text-primary"}
+            className={
+              isOverdue
+                ? "text-red font-medium"
+                : "text-text-primary font-medium"
+            }
           >
             {format(new Date(dateValue), "MMM d, yyyy")}
           </span>
@@ -158,7 +163,7 @@ export const TodosTable = ({
         const { label, colorClass } =
           PRIORITY_MAP[priorityValue] || PRIORITY_MAP[0];
 
-        return <span className={colorClass}>{label}</span>;
+        return <span className={cn(colorClass, "font-medium")}>{label}</span>;
       },
     }),
     columnHelper.display({
@@ -232,7 +237,9 @@ export const TodosTable = ({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <span className="text-text-primary/70">Loading...</span>
+                  <span className="text-text-primary/70 font-medium">
+                    Loading...
+                  </span>
                 </TableCell>
               </TableRow>
             ) : isError ? (
@@ -283,7 +290,7 @@ export const TodosTable = ({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <span className="text-text-primary">
+                  <span className="text-text-primary font-medium">
                     No todos yet. Create one using the New + button!
                   </span>
                 </TableCell>

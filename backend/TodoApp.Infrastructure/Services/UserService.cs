@@ -6,15 +6,8 @@ using TodoApp.Infrastructure.Data;
 
 namespace TodoApp.Infrastructure.Services
 {
-    public class UserService : IUserService
-    {
-        private readonly AppDbContext _db;
-
-        public UserService(AppDbContext db)
-        {
-            _db = db;
-        }
-
+    public class UserService(AppDbContext db) : IUserService
+    { 
         public async Task<UserResponse> CreateUserAsync(RegisterRequest req)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(req.Password);
@@ -25,15 +18,15 @@ namespace TodoApp.Infrastructure.Services
                 PasswordHash = hashedPassword
             };
 
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
             
             return new UserResponse(user.Id,  user.Email);
         }
 
         public async Task<List<UserWithTodosResponse>> GetAllUsersAsync()
         {
-            var users = await _db.Users
+            var users = await db.Users
                 .Include(u => u.TodoList)
                 .ToListAsync();
 
@@ -54,7 +47,7 @@ namespace TodoApp.Infrastructure.Services
 
         public async Task<UserWithTodosResponse?> GetUserByIdAsync(Guid id)
         {
-            var user = await _db.Users
+            var user = await db.Users
                 .Include(u => u.TodoList)
                 .FirstOrDefaultAsync(u => u.Id == id);
 

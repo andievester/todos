@@ -11,20 +11,12 @@ using TodoApp.Infrastructure.Data;
 
 namespace TodoApp.Infrastructure.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService(AppDbContext db, IConfiguration config) : IAuthService
     {
-        private readonly AppDbContext _db;
-        private readonly IConfiguration _config;
-
-        public AuthService(AppDbContext db, IConfiguration config)
-        {
-            _db = db;
-            _config = config;
-        }
 
         public async Task<(bool Success, string ErrorMessage, User? User)> RegisterAsync(RegisterRequest req)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == req.Email))
+            if (await db.Users.AnyAsync(u => u.Email == req.Email))
             {
                 return (false, "Email is already in use.", null);
             }
@@ -37,15 +29,15 @@ namespace TodoApp.Infrastructure.Services
                 PasswordHash = hashedPassword
             };
 
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
 
             return (true, string.Empty, user);
         }
 
         public async Task<string?> LoginAsync(LoginRequest req)
         {
-            var user = await _db.Users.SingleOrDefaultAsync(u => u.Email == req.Email);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Email == req.Email);
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             {
@@ -64,15 +56,15 @@ namespace TodoApp.Infrastructure.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(1),
-                Issuer = _config["Jwt:Issuer"],
-                Audience = _config["Jwt:Audience"],
+                Issuer = config["Jwt:Issuer"],
+                Audience = config["Jwt:Audience"],
                 SigningCredentials = creds
             };
 
