@@ -51,8 +51,11 @@ export function LoginForm() {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
+      {/* TODO: refactor to form error message */}
       {form.formState.errors.root && (
-        <p className="text-red-500">{form.formState.errors.root.message}</p>
+        <div className="bg-red/20 text-red text-sm py-1 px-2 rounded-lg w-fit">
+          {form.formState.errors.root.message}
+        </div>
       )}
 
       <FieldGroup>

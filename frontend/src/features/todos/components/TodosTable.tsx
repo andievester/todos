@@ -49,6 +49,8 @@ const getColumnClasses = (columnId: string) => {
 // TODO: refactor some of this
 // TODO: pass in value for show completed and filter tasks
 
+// TODO: add done tag like overdue tag?
+
 interface TodosTableProps {
   todos: TodoItem[];
   onRowClick?: (todo: TodoItem) => void;
@@ -56,7 +58,7 @@ interface TodosTableProps {
 
 export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingTodo, setDeletingTodo] = useState<TodoItem | null>(null);
 
   const columns = [
     columnHelper.accessor("title", {
@@ -173,7 +175,7 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
     columnHelper.display({
       id: "actions",
       cell: (info) => {
-        const { id, title } = info.row.original;
+        const todo = info.row.original;
 
         return (
           <div className="flex justify-end">
@@ -182,23 +184,12 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsDeleting(true);
+                setDeletingTodo(todo);
               }}
               className="text-text-primary/50 hover:text-red hover:bg-red/10"
             >
               <X strokeWidth={3} />
             </Button>
-
-            <DeleteTodoModal
-              open={isDeleting}
-              onOpenChange={setIsDeleting}
-              onConfirm={() => {
-                console.log(id);
-                // TODO: Wire up actual deletion logic here via a prop
-                setIsDeleting(false);
-              }}
-              todoTitle={title}
-            />
           </div>
         );
       },
@@ -254,7 +245,7 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
                   key={row.id}
                   onClick={() => onRowClick?.(row.original)}
                   className={`group border-none bg-input drop-shadow-sm transition-all hover:bg-input/80 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl ${
-                    row.original.isCompleted ? "line-through opacity-60" : ""
+                    row.original.isCompleted ? "line-through opacity-30" : ""
                   }`}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -281,13 +272,21 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No todos yet. Create one using the New + button!
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+      <DeleteTodoModal
+        open={!!deletingTodo}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setDeletingTodo(null);
+        }}
+        todoId={deletingTodo?.id}
+        todoTitle={deletingTodo?.title}
+      />
     </div>
   );
 };

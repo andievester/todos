@@ -86,5 +86,21 @@ namespace TodoApp.Infrastructure.Services
                 todoItem.UserId
             );
         }
+        
+        public async Task<bool> DeleteTodoItemAsync(int id, Guid userId)
+        {
+            var todoItem = await _db.TodoItems
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+            if (todoItem == null)
+            {
+                return false; 
+            }
+
+            _db.TodoItems.Remove(todoItem);
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

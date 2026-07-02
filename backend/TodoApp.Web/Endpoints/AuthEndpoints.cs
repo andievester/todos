@@ -18,7 +18,7 @@ namespace TodoApp.Web.Endpoints
 
                 if (!result.Success)
                 {
-                    return Results.BadRequest(result.ErrorMessage);
+                    return Results.BadRequest(new { message = result.ErrorMessage });
                 }
 
                 return Results.Ok(new { result.User!.Id, result.User.Email });

@@ -49,6 +49,19 @@ namespace TodoApp.Web.Endpoints
                     ? Results.Ok(updatedItem) 
                     : Results.NotFound();
             });
+            
+            todoItems.MapDelete("/{id}", async (int id, HttpContext context, ITodoItemService itemService) =>
+            {
+                var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+
+                var success = await itemService.DeleteTodoItemAsync(id, Guid.Parse(userId));
+
+                return success 
+                    ? Results.NoContent() 
+                    : Results.NotFound();
+            });
         }
     }
 }

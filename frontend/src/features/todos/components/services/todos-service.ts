@@ -24,3 +24,7 @@ export const updateTodo = async (
   const response = await axiosInstance.put<TodoItem>(`/todos/${id}`, data);
   return response.data;
 };
+
+export const deleteTodo = async (id: number): Promise<void> => {
+  await axiosInstance.delete(`/todos/${id}`);
+};

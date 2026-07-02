@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { registerUser } from "../services/auth-service";
 import { toast } from "sonner";
+import axios from "axios";
 
 const signupSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
@@ -39,11 +40,21 @@ export function SignupForm() {
         description: "Please log in with your new credentials.",
       });
     } catch (error) {
-      console.error(error);
-      form.setError("root", {
-        message:
-          "Registration failed. Please check your details and try again.",
-      });
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        console.error("Server says:", error.response.data.message);
+
+        form.setError("root", {
+          type: "server",
+          message: error.response.data.message,
+        });
+      } else {
+        console.error("An unexpected error occurred:", error);
+
+        form.setError("root", {
+          type: "server",
+          message: "Registration failed.",
+        });
+      }
     }
   }
   return (
@@ -52,6 +63,11 @@ export function SignupForm() {
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-4"
     >
+      {form.formState.errors.root && (
+        <div className="bg-red/20 text-red text-sm py-1 px-2 rounded-lg w-fit">
+          {form.formState.errors.root.message}
+        </div>
+      )}
       <FieldGroup>
         <Controller
           name="email"
