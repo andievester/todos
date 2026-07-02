@@ -7,11 +7,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { getTodos } from "../components/services/todos-service";
 import type { TodoItem } from "../types";
-import type { TodoFormValues } from "../components/TodoForm";
 
 export const TodosPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTodo, setEditingTodo] = useState<TodoFormValues | null>(null);
+  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
   const {
@@ -29,20 +28,13 @@ export const TodosPage = () => {
   };
 
   const handleEdit = (todo: TodoItem) => {
-    const todoForForm = {
-      ...todo,
-      dueDate: todo.dueDate ? new Date(todo.dueDate) : undefined,
-    };
-
-    setEditingTodo(todoForForm);
+    setEditingTodo(todo);
     setIsModalOpen(true);
   };
 
   const displayedTodos = showCompleted
     ? todos
     : todos.filter((todo) => !todo.isCompleted);
-
-  console.log("displayedtodos:", displayedTodos);
 
   return (
     <div className="page-root">

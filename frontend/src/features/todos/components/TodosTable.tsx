@@ -21,7 +21,8 @@ import {
 import { DeleteTodoModal } from "./DeleteTodoModal";
 import type { TodoItem } from "../types";
 
-export type Priority = "Low" | "Medium" | "High";
+// TODO: propbably put this type elsewhere and refactor
+export type Priority = "Low" | "Medium" | "High" | "None";
 
 export type User = {
   id: string;
@@ -56,8 +57,6 @@ interface TodosTableProps {
 export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  console.log("table data:", todos);
 
   const columns = [
     columnHelper.accessor("title", {
@@ -147,9 +146,22 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
           number,
           { label: string; colorClass: string }
         > = {
-          0: { label: "Low", colorClass: "text-green font-semibold" },
-          1: { label: "Medium", colorClass: "text-yellow font-semibold" },
-          2: { label: "High", colorClass: "text-red font-semibold" },
+          0: {
+            label: "Low",
+            colorClass: "text-green",
+          },
+          1: {
+            label: "Medium",
+            colorClass: "text-yellow",
+          },
+          2: {
+            label: "High",
+            colorClass: "text-red",
+          },
+          3: {
+            label: "None",
+            colorClass: "text-text-primary/70",
+          },
         };
 
         const { label, colorClass } =

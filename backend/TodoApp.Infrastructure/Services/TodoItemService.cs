@@ -57,5 +57,34 @@ namespace TodoApp.Infrastructure.Services
                 todoItem.UserId
             );
         }
+        
+        public async Task<TodoItemResponse?> UpdateTodoItemAsync(int id, UpdateTodoItemRequest req, Guid userId)
+        {
+            var todoItem = await _db.TodoItems
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+            if (todoItem == null)
+            {
+                return null;
+            }
+
+            todoItem.Title = req.Title;
+            todoItem.Description = req.Description;
+            todoItem.IsCompleted = req.IsCompleted;
+            todoItem.DueDate = req.DueDate;
+            todoItem.Priority = req.Priority;
+
+            await _db.SaveChangesAsync();
+
+            return new TodoItemResponse(
+                todoItem.Id,
+                todoItem.Title,
+                todoItem.Description ?? string.Empty,
+                todoItem.IsCompleted,
+                todoItem.DueDate,
+                todoItem.Priority,
+                todoItem.UserId
+            );
+        }
     }
 }

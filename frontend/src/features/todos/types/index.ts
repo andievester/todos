@@ -17,12 +17,18 @@ export interface TodoItem {
   createdAt: string;
 }
 
-export type TodoFormData = {
+export interface CreateTodoPayload {
   title: string;
-  description?: string;
+  description?: string | null;
   isCompleted?: boolean;
-  dueDate?: Date;
+  dueDate?: string | null;
   priority?: number;
-};
+}
 
-export type CreateTodoPayload = Omit<TodoItem, "id">;
+export interface UpdateTodoPayload {
+  title: string;
+  description?: string | null;
+  isCompleted?: boolean;
+  dueDate?: string | null;
+  priority?: number;
+}

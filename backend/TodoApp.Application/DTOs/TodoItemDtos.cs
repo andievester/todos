@@ -20,4 +20,12 @@ namespace TodoApp.Application.DTOs
         int Priority,
         Guid UserId
     );
+    
+    public record UpdateTodoItemRequest(
+        string Title,
+        string? Description,
+        bool IsCompleted,
+        DateTime? DueDate,
+        int Priority
+    );
 }

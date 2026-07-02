@@ -4,6 +4,7 @@ namespace TodoApp.Domain.Models
     {
         Low,
         Medium,
-        High
+        High, 
+        None
     }
 }

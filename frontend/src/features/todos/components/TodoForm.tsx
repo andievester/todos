@@ -28,12 +28,15 @@ import { CalendarIcon, Check, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/components/lib/utils";
-import type { TodoFormData } from "../types";
+import type { TodoItem } from "../types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createTodo, updateTodo } from "./services/todos-service";
 
 const PRIORITY_MAP = {
   0: { label: "Low", colorClass: "text-green" },
   1: { label: "Medium", colorClass: "text-yellow" },
   2: { label: "High", colorClass: "text-red" },
+  3: { label: "None", colorClass: "text-text-primary/70" },
 } as const;
 
 const todoSchema = z.object({
@@ -45,16 +48,40 @@ const todoSchema = z.object({
 });
 
 export type TodoFormValues = z.infer<typeof todoSchema>;
-
-//TODO: series of clicks around date/priority picker closes the modal
-//TODO: make priority optional
-
 interface TodoFormProps {
-  initialData?: TodoFormData | null;
+  initialData?: TodoItem | null;
   onCancel?: () => void;
 }
 
 export function TodoForm({ initialData, onCancel }: TodoFormProps) {
+  const queryClient = useQueryClient();
+
+  const todoMutation = useMutation({
+    mutationFn: async (data: TodoFormValues) => {
+      console.log("priority:", data.priority);
+      const payload = {
+        title: data.title,
+        description: data.description || null,
+        isCompleted: data.isCompleted ?? false,
+        priority: data.priority,
+        dueDate: data.dueDate ? data.dueDate.toISOString() : null,
+      };
+
+      if (initialData?.id) {
+        return await updateTodo(initialData.id, payload);
+      }
+      return await createTodo(payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+
+      if (onCancel) onCancel();
+    },
+    onError: (error) => {
+      console.error("Failed to save todo:", error);
+    },
+  });
+
   const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
     defaultValues: {
@@ -68,6 +95,7 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
 
   function onSubmit(data: TodoFormValues) {
     console.log("Todo payload:", data);
+    todoMutation.mutate(data);
   }
 
   return (
@@ -108,49 +136,6 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                 aria-invalid={fieldState.invalid}
                 className="min-h-[100px]"
               />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        {/* TODO: show date as selected in picker */}
-        <Controller
-          name="dueDate"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="flex flex-col gap-2"
-            >
-              <FieldLabel htmlFor="due-date-input">Due Date</FieldLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="due-date-input"
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !field.value && "text-muted-foreground",
-                      fieldState.invalid &&
-                        "border-destructive text-destructive focus-visible:ring-destructive"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? (
-                      format(field.value, "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={field.onChange}
-                  />
-                </PopoverContent>
-              </Popover>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -202,6 +187,49 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
               </Field>
             );
           }}
+        />
+
+        <Controller
+          name="dueDate"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field
+              data-invalid={fieldState.invalid}
+              className="flex flex-col gap-2"
+            >
+              <FieldLabel htmlFor="due-date-input">Due Date</FieldLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="due-date-input"
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                      fieldState.invalid &&
+                        "border-destructive text-destructive focus-visible:ring-destructive"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value ? (
+                      format(field.value, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    defaultMonth={field.value || new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
         />
 
         <Controller

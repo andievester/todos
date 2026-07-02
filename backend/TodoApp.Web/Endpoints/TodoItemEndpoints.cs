@@ -36,6 +36,19 @@ namespace TodoApp.Web.Endpoints
                 
                 return Results.Created($"/api/todos/{createdTodoItem.Id}", createdTodoItem);
             });
+            
+            todoItems.MapPut("/{id}", async (int id, UpdateTodoItemRequest req, HttpContext context, ITodoItemService itemService) =>
+            {
+                var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
+
+                var updatedItem = await itemService.UpdateTodoItemAsync(id, req, Guid.Parse(userId));
+
+                return updatedItem is not null 
+                    ? Results.Ok(updatedItem) 
+                    : Results.NotFound();
+            });
         }
     }
 }
