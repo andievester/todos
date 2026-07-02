@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTodo } from "./services/todos-service"; // Adjust path as needed
+import { deleteTodo } from "../services/todos-service"; // Adjust path as needed
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react"; // Optional: for loading state
+import { toast } from "sonner";
 
 interface DeleteTodoModalProps {
   open: boolean;
@@ -32,13 +33,15 @@ export function DeleteTodoModal({
       return await deleteTodo(id);
     },
     onSuccess: () => {
-      // 1. Refresh the table
       queryClient.invalidateQueries({ queryKey: ["todos"] });
-      // 2. Close the modal
       onOpenChange(false);
     },
     onError: (error) => {
       console.error("Failed to delete todo:", error);
+
+      toast.error("Failed to delete todo", {
+        description: "Please try again.",
+      });
     },
   });
 

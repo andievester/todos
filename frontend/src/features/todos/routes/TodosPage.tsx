@@ -5,7 +5,7 @@ import { TodosTable } from "../components/TodosTable";
 import { TodoModal } from "../components/TodoModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { getTodos } from "../components/services/todos-service";
+import { getTodos } from "../services/todos-service";
 import type { TodoItem } from "../types";
 
 export const TodosPage = () => {
@@ -53,17 +53,12 @@ export const TodosPage = () => {
           </div>
 
           <div className="min-h-0 rounded-2xl bg-surface px-4 pb-2 flex w-full flex-col border border-input drop-shadow-sm">
-            {isLoading ? (
-              <div className="p-4 text-center text-muted-foreground">
-                Loading...
-              </div>
-            ) : isError ? (
-              <div className="p-4 text-center text-destructive">
-                Failed to load todos.
-              </div>
-            ) : (
-              <TodosTable todos={displayedTodos} onRowClick={handleEdit} />
-            )}
+            <TodosTable
+              todos={displayedTodos}
+              onRowClick={handleEdit}
+              isLoading={isLoading}
+              isError={isError}
+            />
           </div>
         </div>
       </main>

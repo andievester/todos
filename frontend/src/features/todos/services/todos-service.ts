@@ -1,9 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
-import type {
-  CreateTodoPayload,
-  TodoItem,
-  UpdateTodoPayload,
-} from "../../types";
+import type { CreateTodoPayload, TodoItem, UpdateTodoPayload } from "../types";
 
 export const getTodos = async (): Promise<TodoItem[]> => {
   const response = await axiosInstance.get<TodoItem[]>("/todos");

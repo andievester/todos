@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-/* TODO: do we need orange? */
 @theme {
   --font-poppins: "Poppins", sans-serif;
 
@@ -10,7 +9,6 @@
   --color-input: #434076;
   --color-text-primary: #ffecd6;
   --color-red: #ee3f3f;
-  --color-orange: #ff8f44;
   --color-yellow: #ffda36;
   --color-green: #4ade80;
 
@@ -46,4 +44,8 @@
 
 @utility btn-lg {
   @apply rounded-2xl px-3! py-4!;
+}
+
+@utility form-submission-error {
+  @apply bg-red/20 text-red text-sm py-1 px-2 rounded-lg w-fit;
 }

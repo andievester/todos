@@ -30,14 +30,9 @@ import { format } from "date-fns";
 import { cn } from "@/components/lib/utils";
 import type { TodoItem } from "../types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTodo, updateTodo } from "./services/todos-service";
-
-const PRIORITY_MAP = {
-  0: { label: "Low", colorClass: "text-green" },
-  1: { label: "Medium", colorClass: "text-yellow" },
-  2: { label: "High", colorClass: "text-red" },
-  3: { label: "None", colorClass: "text-text-primary/70" },
-} as const;
+import { createTodo, updateTodo } from "../services/todos-service";
+import { toast } from "sonner";
+import { PRIORITY_MAP } from "@/utils/constants";
 
 const todoSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -58,7 +53,6 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
 
   const todoMutation = useMutation({
     mutationFn: async (data: TodoFormValues) => {
-      console.log("priority:", data.priority);
       const payload = {
         title: data.title,
         description: data.description || null,
@@ -74,11 +68,13 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
-
       if (onCancel) onCancel();
     },
     onError: (error) => {
       console.error("Failed to save todo:", error);
+      toast.error("Failed to save todo", {
+        description: "Please try again.",
+      });
     },
   });
 
@@ -94,7 +90,6 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
   });
 
   function onSubmit(data: TodoFormValues) {
-    console.log("Todo payload:", data);
     todoMutation.mutate(data);
   }
 
@@ -162,7 +157,10 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                   <SelectTrigger
                     id="priority-select"
                     aria-invalid={fieldState.invalid}
-                    className={cn(selectedPriority?.colorClass)}
+                    className={cn(
+                      selectedPriority?.colorClass,
+                      "focus:ring-2 focus:ring-ring data-[state=open]:ring-2 data-[state=open]:ring-ring"
+                    )}
                   >
                     <SelectValue placeholder="Select a priority" />
                   </SelectTrigger>
@@ -257,7 +255,7 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
         />
       </FieldGroup>
 
-      <div className="flex items-center gap-3 pt-4">
+      <div className="flex items-center gap-3 pt-2">
         <Button type="button" onClick={onCancel} className="btn-surface btn-lg">
           <X className="text-red" strokeWidth={3} />
           <span>Cancel</span>

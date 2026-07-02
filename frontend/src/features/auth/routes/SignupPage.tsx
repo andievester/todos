@@ -1,6 +1,6 @@
-import { SignupForm } from "../components/SignupForm";
 import { AuthPrompt } from "../components/AuthPrompt";
 import { AuthLayout } from "../layouts/AuthLayout";
+import { AuthForm } from "../components/AuthForm";
 
 export function SignupPage() {
   return (
@@ -8,7 +8,7 @@ export function SignupPage() {
       title="Create an account"
       description="Enter your details to get started."
     >
-      <SignupForm />
+      <AuthForm mode="signup" />
       <AuthPrompt
         message="Already have an account?"
         actionText="Login"

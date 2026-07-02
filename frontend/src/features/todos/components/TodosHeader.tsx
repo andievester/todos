@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/contexts/auth-context";
 import { LogOut, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

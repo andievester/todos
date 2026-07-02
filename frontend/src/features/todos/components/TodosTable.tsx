@@ -7,7 +7,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, X } from "lucide-react";
 import { format, isBefore, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +20,7 @@ import {
 } from "@/components/ui/table";
 import { DeleteTodoModal } from "./DeleteTodoModal";
 import type { TodoItem } from "../types";
-
-// TODO: propbably put this type elsewhere and refactor
-export type Priority = "Low" | "Medium" | "High" | "None";
+import { PRIORITY_MAP } from "@/utils/constants";
 
 export type User = {
   id: string;
@@ -47,16 +45,28 @@ const getColumnClasses = (columnId: string) => {
 };
 
 // TODO: refactor some of this
-// TODO: pass in value for show completed and filter tasks
-
-// TODO: add done tag like overdue tag?
 
 interface TodosTableProps {
   todos: TodoItem[];
   onRowClick?: (todo: TodoItem) => void;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
-export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
+const SortIcon = ({ isSorted }: { isSorted: false | "asc" | "desc" }) => {
+  const iconClasses = "ml-2 h-4 w-4";
+
+  if (isSorted === "asc") return <ArrowUp className={iconClasses} />;
+  if (isSorted === "desc") return <ArrowDown className={iconClasses} />;
+  return <ArrowUpDown className={iconClasses} />;
+};
+
+export const TodosTable = ({
+  todos,
+  onRowClick,
+  isLoading,
+  isError,
+}: TodosTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [deletingTodo, setDeletingTodo] = useState<TodoItem | null>(null);
 
@@ -69,7 +79,7 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
           className="-ml-4"
         >
           Task
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <SortIcon isSorted={column.getIsSorted()} />
         </Button>
       ),
       cell: (info) => {
@@ -102,7 +112,7 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
           className="-ml-4"
         >
           Due Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <SortIcon isSorted={column.getIsSorted()} />
         </Button>
       ),
       cell: (info) => {
@@ -136,38 +146,17 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
             className="-mr-4"
           >
             Priority
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <SortIcon isSorted={column.getIsSorted()} />
           </Button>
         </div>
       ),
       cell: (info) => {
-        const priorityValue = Number(info.getValue());
-
-        // TODO: consider usage of enum on backend? or refactor this
-        const priorityMap: Record<
-          number,
-          { label: string; colorClass: string }
-        > = {
-          0: {
-            label: "Low",
-            colorClass: "text-green",
-          },
-          1: {
-            label: "Medium",
-            colorClass: "text-yellow",
-          },
-          2: {
-            label: "High",
-            colorClass: "text-red",
-          },
-          3: {
-            label: "None",
-            colorClass: "text-text-primary/70",
-          },
-        };
+        const priorityValue = Number(
+          info.getValue()
+        ) as keyof typeof PRIORITY_MAP;
 
         const { label, colorClass } =
-          priorityMap[priorityValue] || priorityMap[0];
+          PRIORITY_MAP[priorityValue] || PRIORITY_MAP[0];
 
         return <span className={colorClass}>{label}</span>;
       },
@@ -186,7 +175,7 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
                 e.stopPropagation();
                 setDeletingTodo(todo);
               }}
-              className="text-text-primary/50 hover:text-red hover:bg-red/10"
+              className="text-text-primary/70 hover:text-red hover:bg-red/30"
             >
               <X strokeWidth={3} />
             </Button>
@@ -195,8 +184,6 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
       },
     }),
   ];
-
-  // TODO: check this warning
 
   const table = useReactTable({
     data: todos,
@@ -239,19 +226,43 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
       <div className="flex-1 overflow-y-auto pt-2">
         <Table className="table-fixed border-separate border-spacing-y-2 border-none bg-transparent w-full">
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow className="bg-transparent hover:bg-transparent">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <span className="text-text-primary/70">Loading...</span>
+                </TableCell>
+              </TableRow>
+            ) : isError ? (
+              <TableRow className="bg-transparent hover:bg-transparent">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <span className="text-red font-medium">
+                    Error loading todos.
+                  </span>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   onClick={() => onRowClick?.(row.original)}
                   className={`group border-none bg-input drop-shadow-sm transition-all hover:bg-input/80 hover:drop-shadow-md cursor-pointer [&>td:first-child]:rounded-l-2xl [&>td:last-child]:rounded-r-2xl ${
-                    row.original.isCompleted ? "line-through opacity-30" : ""
+                    row.original.isCompleted ? "line-through" : ""
                   }`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className={`py-2 ${getColumnClasses(cell.column.id)}`}
+                      className={`py-2 ${getColumnClasses(cell.column.id)} ${
+                        row.original.isCompleted && cell.column.id !== "actions"
+                          ? "opacity-50"
+                          : ""
+                      }`}
                       onClick={(e) => {
                         if (cell.column.id === "actions") {
                           e.stopPropagation();
@@ -272,7 +283,9 @@ export const TodosTable = ({ todos, onRowClick }: TodosTableProps) => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No todos yet. Create one using the New + button!
+                  <span className="text-text-primary">
+                    No todos yet. Create one using the New + button!
+                  </span>
                 </TableCell>
               </TableRow>
             )}

@@ -7,9 +7,6 @@ interface AuthLayoutProps {
   children: ReactNode;
 }
 
-// TODO: can we put page-root in just one spot
-// TODO: style page error message for unsuccessful login/signup
-
 export function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
     <div className="page-root items-center justify-center">
