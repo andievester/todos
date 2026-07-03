@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
+using TodoApp.Web.Endpoints.Interfaces;
 
 namespace TodoApp.Web.Endpoints
 {
-    public static class AuthEndpoints
+    public class AuthEndpoints : IEndpoint
     {
-        public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
+        public void MapEndpoint(IEndpointRouteBuilder app)
         {
             var auth = app.MapGroup("/api/auth");
 

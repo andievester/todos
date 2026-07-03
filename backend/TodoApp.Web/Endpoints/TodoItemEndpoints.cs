@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
+using TodoApp.Web.Endpoints.Interfaces;
 
 namespace TodoApp.Web.Endpoints
 {
-    public static class TodoItemEndpoints
+    public class TodoItemEndpoints : IEndpoint
     {
-        public static void MapTodoItemEndpoints(this IEndpointRouteBuilder app)
+        public void MapEndpoint(IEndpointRouteBuilder app)
         {
             var todoItems = app.MapGroup("/api/todos")
                 .RequireAuthorization() 

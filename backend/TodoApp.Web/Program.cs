@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using TodoApp.Application;
 using TodoApp.Infrastructure;
 using TodoApp.Web.Endpoints;
+using TodoApp.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,22 +34,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-// 1. JWT Authentication Configuration
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-        };
-    });
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddOpenApi();
 builder.Services.AddAuthorization();
@@ -66,15 +52,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 
-// 2. Authentication MUST come before Authorization
 app.UseAuthentication(); 
 app.UseAuthorization();
 
 // ==========================================
 // MAP ENDPOINTS
 // ==========================================
-// These methods will be defined as static extensions in your Web project
-app.MapAuthEndpoints();
-app.MapTodoItemEndpoints();
+app.MapAllEndpoints();
 
 app.Run();
