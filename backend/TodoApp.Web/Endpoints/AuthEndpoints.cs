@@ -12,9 +12,9 @@ namespace TodoApp.Web.Endpoints
         {
             var auth = app.MapGroup("/api/auth");
 
-            auth.MapPost("/register", async (RegisterRequest req, IAuthService service) =>
+            auth.MapPost("/register", async (RegisterRequest req, IAuthService authService) =>
             {
-                var result = await service.RegisterAsync(req);
+                var result = await authService.RegisterAsync(req);
 
                 if (!result.Success)
                 {
@@ -24,9 +24,9 @@ namespace TodoApp.Web.Endpoints
                 return Results.Ok(new { result.User!.Id, result.User.Email });
             });
 
-            auth.MapPost("/login", async (LoginRequest req, IAuthService service) =>
+            auth.MapPost("/login", async (LoginRequest req, IAuthService authService, CancellationToken cancellationToken) =>
             {
-                var token = await service.LoginAsync(req);
+                var token = await authService.LoginAsync(req, cancellationToken);
 
                 if (string.IsNullOrEmpty(token))
                 {

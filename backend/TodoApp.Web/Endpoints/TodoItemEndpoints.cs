@@ -15,48 +15,48 @@ namespace TodoApp.Web.Endpoints
                 .RequireAuthorization() 
                 .WithTags("Todos");
 
-            todoItems.MapGet("/", async (HttpContext context, ITodoItemService itemService) =>
+            todoItems.MapGet("/", async (HttpContext context, ITodoItemService todoItemService, CancellationToken cancellationToken) =>
             {
                 var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var items = await itemService.GetTodoItemsByUserIdAsync(Guid.Parse(userId));
-                
+                var items = await todoItemService.GetTodoItemsByUserIdAsync(Guid.Parse(userId), cancellationToken);
+    
                 return Results.Ok(items);
             });
 
-            todoItems.MapPost("/", async (HttpContext context, CreateTodoItemRequest req, ITodoItemService itemService) =>
+            todoItems.MapPost("/", async (HttpContext context, CreateTodoItemRequest req, ITodoItemService todoItemService) =>
             {
                 var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var createdTodoItem = await itemService.CreateTodoItemAsync(req, Guid.Parse(userId));
+                var createdTodoItem = await todoItemService.CreateTodoItemAsync(req, Guid.Parse(userId));
                 
                 return Results.Created($"/api/todos/{createdTodoItem.Id}", createdTodoItem);
             });
             
-            todoItems.MapPut("/{id}", async (int id, UpdateTodoItemRequest req, HttpContext context, ITodoItemService itemService) =>
+            todoItems.MapPut("/{id}", async (int id, UpdateTodoItemRequest req, HttpContext context, ITodoItemService todoItemService) =>
             {
                 var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var updatedItem = await itemService.UpdateTodoItemAsync(id, req, Guid.Parse(userId));
+                var updatedItem = await todoItemService.UpdateTodoItemAsync(id, req, Guid.Parse(userId));
 
                 return updatedItem is not null 
                     ? Results.Ok(updatedItem) 
                     : Results.NotFound();
             });
             
-            todoItems.MapDelete("/{id}", async (int id, HttpContext context, ITodoItemService itemService) =>
+            todoItems.MapDelete("/{id}", async (int id, HttpContext context, ITodoItemService todoItemService) =>
             {
                 var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var success = await itemService.DeleteTodoItemAsync(id, Guid.Parse(userId));
+                var success = await todoItemService.DeleteTodoItemAsync(id, Guid.Parse(userId));
 
                 return success 
                     ? Results.NoContent() 

@@ -35,9 +35,9 @@ namespace TodoApp.Infrastructure.Services
             return (true, string.Empty, user);
         }
 
-        public async Task<string?> LoginAsync(LoginRequest req)
+        public async Task<string?> LoginAsync(LoginRequest req, CancellationToken cancellationToken = default)
         {
-            var user = await db.Users.SingleOrDefaultAsync(u => u.Email == req.Email);
+            var user = await db.Users.SingleOrDefaultAsync(u => u.Email == req.Email, cancellationToken);
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             {

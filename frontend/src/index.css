@@ -26,6 +26,11 @@
   --color-destructive: var(--color-red);
   --color-destructive-foreground: var(--color-text-primary);
   --color-success: var(--color-green);
+  --color-muted-foreground: color-mix(
+    in srgb,
+    var(--color-text-primary) 70%,
+    transparent
+  );
 }
 
 @layer base {

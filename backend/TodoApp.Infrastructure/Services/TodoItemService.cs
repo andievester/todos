@@ -8,21 +8,20 @@ namespace TodoApp.Infrastructure.Services
 {
     public class TodoItemService(AppDbContext db) : ITodoItemService
     {
-        public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId)
+        public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            var items = await db.TodoItems
+            return await db.TodoItems
                 .Where(t => t.UserId == userId)
-                .ToListAsync();
-            
-            return items.Select(t => new TodoItemResponse(
-                t.Id, 
-                t.Title, 
-                t.Description ?? string.Empty, 
-                t.IsCompleted, 
-                t.DueDate, 
-                t.Priority, 
-                t.UserId
-            )).ToList();
+                .Select(t => new TodoItemResponse(
+                    t.Id, 
+                    t.Title, 
+                    t.Description ?? string.Empty, 
+                    t.IsCompleted, 
+                    t.DueDate, 
+                    t.Priority, 
+                    t.UserId
+                ))
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req, Guid userId)

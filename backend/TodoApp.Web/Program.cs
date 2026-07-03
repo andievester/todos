@@ -76,6 +76,5 @@ app.UseAuthorization();
 // These methods will be defined as static extensions in your Web project
 app.MapAuthEndpoints();
 app.MapTodoItemEndpoints();
-app.MapUserEndpoints();
 
 app.Run();

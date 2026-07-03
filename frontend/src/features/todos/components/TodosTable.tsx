@@ -98,9 +98,7 @@ export const TodosTable = ({
                 Overdue
               </span>
             )}
-            <span className="text-text-primary font-medium">
-              {info.getValue() as string}
-            </span>
+            <span className="font-medium">{info.getValue() as string}</span>
           </div>
         );
       },
@@ -126,17 +124,11 @@ export const TodosTable = ({
           : false;
 
         if (!dateValue) {
-          return <span className="text-text-primary font-medium">—</span>;
+          return <span className="italic text-muted-foreground">Not set</span>;
         }
 
         return (
-          <span
-            className={
-              isOverdue
-                ? "text-red font-medium"
-                : "text-text-primary font-medium"
-            }
-          >
+          <span className={cn("font-medium", isOverdue && "text-red")}>
             {format(new Date(dateValue), "MMM d, yyyy")}
           </span>
         );
@@ -180,7 +172,7 @@ export const TodosTable = ({
                 e.stopPropagation();
                 setDeletingTodo(todo);
               }}
-              className="text-text-primary/70 hover:text-red hover:bg-red/30"
+              className="text-muted-foreground hover:text-red hover:bg-red/30"
             >
               <X strokeWidth={3} />
             </Button>
@@ -211,7 +203,7 @@ export const TodosTable = ({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={`border-b border-input py-2 text-text-primary ${getColumnClasses(
+                    className={`border-b border-input py-2 ${getColumnClasses(
                       header.column.id
                     )}`}
                   >
@@ -237,7 +229,7 @@ export const TodosTable = ({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <span className="text-text-primary/70 font-medium">
+                  <span className="text-muted-foreground font-medium">
                     Loading...
                   </span>
                 </TableCell>
@@ -290,7 +282,7 @@ export const TodosTable = ({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <span className="text-text-primary font-medium">
+                  <span className="font-medium">
                     No todos yet. Create one using the New + button!
                   </span>
                 </TableCell>

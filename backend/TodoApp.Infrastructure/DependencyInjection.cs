@@ -15,7 +15,6 @@ public static class DependencyInjection
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<ITodoItemService, TodoItemService>();
-        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         
         return services;

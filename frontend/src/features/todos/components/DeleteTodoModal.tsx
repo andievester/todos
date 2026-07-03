@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTodo } from "../services/todos-service"; // Adjust path as needed
+import { deleteTodo } from "../services/todos-service";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,13 +10,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react"; // Optional: for loading state
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface DeleteTodoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  todoId?: number | string; // Pass the ID instead of a confirm function
+  todoId?: number | string;
   todoTitle?: string;
 }
 
@@ -51,9 +51,11 @@ export function DeleteTodoModal({
     }
   };
 
+  const isPendingDelete = deleteMutation.isPending;
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-surface border-input text-text-primary">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
             Are you sure you want to delete this todo:
@@ -63,10 +65,7 @@ export function DeleteTodoModal({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            disabled={deleteMutation.isPending}
-            className="btn-surface btn-lg hover:bg-input/80 hover:text-text-primary"
-          >
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
@@ -75,9 +74,9 @@ export function DeleteTodoModal({
               handleDelete();
             }}
             disabled={deleteMutation.isPending}
-            className="btn-lg bg-red hover:brightness-110 text-text-primary"
+            className="bg-red hover:brightness-120"
           >
-            {deleteMutation.isPending ? (
+            {isPendingDelete ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               "Delete"

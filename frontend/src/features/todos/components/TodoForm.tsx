@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Check, X } from "lucide-react";
+import { CalendarIcon, Check, Loader2, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/components/lib/utils";
@@ -92,6 +92,8 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
   function onSubmit(data: TodoFormValues) {
     todoMutation.mutate(data);
   }
+
+  const isPendingSave = todoMutation.isPending;
 
   return (
     <form
@@ -256,13 +258,29 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
       </FieldGroup>
 
       <div className="flex items-center gap-3 pt-2">
-        <Button type="button" onClick={onCancel} className="btn-surface btn-lg">
+        <Button
+          type="button"
+          disabled={isPendingSave}
+          onClick={onCancel}
+          className="btn-surface btn-lg"
+        >
           <X className="text-red" strokeWidth={3} />
           <span>Cancel</span>
         </Button>
-        <Button type="submit" form="todo-form" className="btn-surface btn-lg">
-          <Check className="text-green" strokeWidth={3} />
-          <span>Save Todo</span>
+        <Button
+          type="submit"
+          disabled={isPendingSave}
+          form="todo-form"
+          className="btn-surface btn-lg"
+        >
+          {isPendingSave ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <Check className="text-green" strokeWidth={3} />
+              <span>Save Todo</span>
+            </>
+          )}
         </Button>
       </div>
     </form>
