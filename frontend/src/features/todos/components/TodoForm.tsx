@@ -29,14 +29,19 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/components/lib/utils";
 import type { TodoItem } from "../types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTodo, updateTodo } from "../services/todos-service";
-import { toast } from "sonner";
 import { PRIORITY_MAP } from "@/utils/constants";
+import { useState } from "react";
+import { useSaveTodo } from "../hooks/useSaveTodo";
 
 const todoSchema = z.object({
-  title: z.string().min(1, "Title is required."),
-  description: z.string().optional(),
+  title: z
+    .string()
+    .min(1, "Title is required.")
+    .max(100, "Title cannot exceed 100 characters."),
+  description: z
+    .string()
+    .max(1000, "Description cannot exceed 1000 characters.")
+    .optional(),
   isCompleted: z.boolean().optional(),
   dueDate: z.date().optional(),
   priority: z.number().optional(),
@@ -49,34 +54,7 @@ interface TodoFormProps {
 }
 
 export function TodoForm({ initialData, onCancel }: TodoFormProps) {
-  const queryClient = useQueryClient();
-
-  const todoMutation = useMutation({
-    mutationFn: async (data: TodoFormValues) => {
-      const payload = {
-        title: data.title,
-        description: data.description || null,
-        isCompleted: data.isCompleted ?? false,
-        priority: data.priority,
-        dueDate: data.dueDate ? data.dueDate.toISOString() : null,
-      };
-
-      if (initialData?.id) {
-        return await updateTodo(initialData.id, payload);
-      }
-      return await createTodo(payload);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      if (onCancel) onCancel();
-    },
-    onError: (error) => {
-      console.error("Failed to save todo:", error);
-      toast.error("Failed to save todo", {
-        description: "Please try again.",
-      });
-    },
-  });
+  const { mutate: saveTodo, isPending: isPendingSave } = useSaveTodo();
 
   const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
@@ -90,10 +68,16 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
   });
 
   function onSubmit(data: TodoFormValues) {
-    todoMutation.mutate(data);
+    saveTodo(
+      { id: initialData?.id, data },
+      {
+        onSuccess: () => {
+          if (onCancel) onCancel();
+        },
+      }
+    );
   }
-
-  const isPendingSave = todoMutation.isPending;
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   return (
     <form
@@ -114,6 +98,7 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                 type="text"
                 placeholder="What needs to be done?"
                 aria-invalid={fieldState.invalid}
+                maxLength={100}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -132,6 +117,7 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                 placeholder="Add any extra details here..."
                 aria-invalid={fieldState.invalid}
                 className="min-h-[100px]"
+                maxLength={1000}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -198,7 +184,8 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
               className="flex flex-col gap-2"
             >
               <FieldLabel htmlFor="due-date-input">Due Date</FieldLabel>
-              <Popover>
+
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     id="due-date-input"
@@ -222,7 +209,10 @@ export function TodoForm({ initialData, onCancel }: TodoFormProps) {
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(date) => {
+                      field.onChange(date);
+                      setIsCalendarOpen(false);
+                    }}
                     defaultMonth={field.value || new Date()}
                   />
                 </PopoverContent>

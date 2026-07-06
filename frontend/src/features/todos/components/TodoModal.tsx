@@ -16,6 +16,7 @@ export function TodoModal({ open, onOpenChange, todo }: TodoModalProps) {
         onInteractOutside={(event) => {
           event.preventDefault();
         }}
+        className="max-h-[90dvh] overflow-y-auto"
       >
         <TodoForm initialData={todo} onCancel={() => onOpenChange(false)} />
       </DialogContent>

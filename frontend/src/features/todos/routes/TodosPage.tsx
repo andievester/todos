@@ -1,26 +1,20 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { TodosHeader } from "../components/TodosHeader";
 import { TodosTable } from "../components/TodosTable";
 import { TodoModal } from "../components/TodoModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { getTodos } from "../services/todos-service";
 import type { TodoItem } from "../types";
+import { useTodos } from "../hooks/useTodos";
 
 export const TodosPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
-  const {
-    data: todos = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["todos"],
-    queryFn: getTodos,
-  });
+  const { data: todos = [], isLoading, isError } = useTodos();
+
+  console.log("todos:", todos);
 
   const handleOpenNew = () => {
     setEditingTodo(null);

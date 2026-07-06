@@ -1,5 +1,3 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTodo } from "../services/todos-service";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +8,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useDeleteTodo } from "../hooks/useDeleteTodo";
 
 interface DeleteTodoModalProps {
   open: boolean;
@@ -26,32 +24,16 @@ export function DeleteTodoModal({
   todoId,
   todoTitle,
 }: DeleteTodoModalProps) {
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return await deleteTodo(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      onOpenChange(false);
-    },
-    onError: (error) => {
-      console.error("Failed to delete todo:", error);
-
-      toast.error("Failed to delete todo", {
-        description: "Please try again.",
-      });
-    },
-  });
-
+  const { mutate: removeTodo, isPending: isPendingDelete } = useDeleteTodo();
   const handleDelete = () => {
     if (todoId) {
-      deleteMutation.mutate(Number(todoId));
+      removeTodo(Number(todoId), {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
+      });
     }
   };
-
-  const isPendingDelete = deleteMutation.isPending;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -65,7 +47,7 @@ export function DeleteTodoModal({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleteMutation.isPending}>
+          <AlertDialogCancel disabled={isPendingDelete}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
@@ -73,7 +55,7 @@ export function DeleteTodoModal({
               e.preventDefault();
               handleDelete();
             }}
-            disabled={deleteMutation.isPending}
+            disabled={isPendingDelete}
             className="bg-red hover:brightness-120"
           >
             {isPendingDelete ? (

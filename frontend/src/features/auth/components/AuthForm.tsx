@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import { loginUser, registerUser } from "../services/auth-service";
 import { useAuth } from "@/contexts/auth-context";
+import { useLogin } from "../hooks/useLogin";
+import { useRegister } from "../hooks/useRegister";
 
 const loginSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
@@ -38,6 +39,10 @@ export function AuthForm({ mode }: AuthFormProps) {
   const { setToken } = useAuth();
   const navigate = useNavigate();
 
+  const { mutate: login, isPending: isLoggingIn } = useLogin();
+  const { mutate: register, isPending: isRegistering } = useRegister();
+  const isPending = isLoggingIn || isRegistering;
+
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(isLogin ? loginSchema : signupSchema),
     defaultValues: {
@@ -46,44 +51,43 @@ export function AuthForm({ mode }: AuthFormProps) {
     },
   });
 
-  async function onSubmit(data: AuthFormValues) {
-    try {
-      if (isLogin) {
-        const response = await loginUser(data);
-        setToken(response.token);
-        navigate("/");
-      } else {
-        await registerUser(data);
-        navigate("/login");
-        toast.success("Registration successful", {
-          description: "Please log in with your new credentials.",
-        });
-      }
-    } catch (error) {
-      if (
-        !isLogin &&
-        axios.isAxiosError(error) &&
-        error.response?.data?.message
-      ) {
-        console.error(error.response.data.message);
-        form.setError("root", {
-          type: "server",
-          message: error.response.data.message,
-        });
-      } else {
-        console.error("An unexpected error occurred:", error);
-        form.setError("root", {
-          type: "server",
-          message: isLogin
-            ? "Invalid email or password."
-            : "Registration failed.",
-        });
-      }
+  function onSubmit(data: AuthFormValues) {
+    if (isLogin) {
+      login(data, {
+        onSuccess: (response) => {
+          setToken(response.token);
+          navigate("/");
+        },
+        onError: (error) => {
+          console.error("Login failed:", error);
+          form.setError("root", {
+            type: "server",
+            message: "Invalid email or password.",
+          });
+        },
+      });
+    } else {
+      register(data, {
+        onSuccess: () => {
+          navigate("/login");
+          toast.success("Registration successful", {
+            description: "Please log in with your new credentials.",
+          });
+        },
+        onError: (error) => {
+          let message = "Registration failed.";
+          if (axios.isAxiosError(error) && error.response?.data?.message) {
+            message = error.response.data.message;
+          } else {
+            console.error("An unexpected error occurred:", error);
+          }
+          form.setError("root", { type: "server", message });
+        },
+      });
     }
   }
 
   const formId = `${mode}-form`;
-  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <form
@@ -140,13 +144,13 @@ export function AuthForm({ mode }: AuthFormProps) {
           type="submit"
           form={formId}
           className="btn-surface btn-lg"
-          disabled={isSubmitting}
+          disabled={isPending}
         >
           {isLogin
-            ? isSubmitting
+            ? isPending
               ? "Logging in..."
               : "Login"
-            : isSubmitting
+            : isPending
             ? "Creating Account..."
             : "Create Account"}
         </Button>
