@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TodoApp.Domain.Interfaces;
+using TodoApp.Application.Interfaces;
 using TodoApp.Infrastructure.Data;
 using TodoApp.Infrastructure.Repositories;
 

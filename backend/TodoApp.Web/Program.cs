@@ -6,6 +6,7 @@ using TodoApp.Application;
 using TodoApp.Infrastructure;
 using TodoApp.Web.Endpoints;
 using TodoApp.Web.Extensions;
+using TodoApp.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Register layers via extension methods
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // CORS Policy
 builder.Services.AddCors(options =>
@@ -43,6 +46,8 @@ builder.Services.AddAuthorization();
 // APP PIPELINE
 // ==========================================
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

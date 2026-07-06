@@ -1,6 +1,5 @@
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
-using TodoApp.Domain.Interfaces;
 using TodoApp.Domain.Entities;
 
 namespace TodoApp.Application.Services

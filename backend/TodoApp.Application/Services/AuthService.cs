@@ -6,7 +6,6 @@ using System.Text;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
 using TodoApp.Domain.Entities;
-using TodoApp.Domain.Interfaces;
 
 namespace TodoApp.Application.Services
 {
