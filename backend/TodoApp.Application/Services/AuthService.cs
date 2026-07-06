@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -6,17 +5,16 @@ using System.Security.Claims;
 using System.Text;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
-using TodoApp.Domain.Models;
-using TodoApp.Infrastructure.Data;
+using TodoApp.Domain.Entities;
+using TodoApp.Domain.Interfaces;
 
-namespace TodoApp.Infrastructure.Services
+namespace TodoApp.Application.Services
 {
-    public class AuthService(AppDbContext db, IConfiguration config) : IAuthService
+    public class AuthService(IUserRepository userRepository, IConfiguration config) : IAuthService
     {
-
         public async Task<(bool Success, string ErrorMessage, User? User)> RegisterAsync(RegisterRequest req)
         {
-            if (await db.Users.AnyAsync(u => u.Email == req.Email))
+            if (await userRepository.EmailExistsAsync(req.Email))
             {
                 return (false, "Email is already in use.", null);
             }
@@ -29,15 +27,14 @@ namespace TodoApp.Infrastructure.Services
                 PasswordHash = hashedPassword
             };
 
-            db.Users.Add(user);
-            await db.SaveChangesAsync();
+            await userRepository.AddUserAsync(user);
 
             return (true, string.Empty, user);
         }
 
         public async Task<string?> LoginAsync(LoginRequest req, CancellationToken cancellationToken = default)
         {
-            var user = await db.Users.SingleOrDefaultAsync(u => u.Email == req.Email, cancellationToken);
+            var user = await userRepository.GetUserByEmailAsync(req.Email, cancellationToken);
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             {

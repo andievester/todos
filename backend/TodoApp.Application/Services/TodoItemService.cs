@@ -1,27 +1,25 @@
-using Microsoft.EntityFrameworkCore;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
-using TodoApp.Domain.Models;
-using TodoApp.Infrastructure.Data;
+using TodoApp.Domain.Interfaces;
+using TodoApp.Domain.Entities;
 
-namespace TodoApp.Infrastructure.Services
+namespace TodoApp.Application.Services
 {
-    public class TodoItemService(AppDbContext db) : ITodoItemService
+    public class TodoItemService(ITodoItemRepository repository) : ITodoItemService
     {
         public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            return await db.TodoItems
-                .Where(t => t.UserId == userId)
-                .Select(t => new TodoItemResponse(
-                    t.Id, 
-                    t.Title, 
-                    t.Description ?? string.Empty, 
-                    t.IsCompleted, 
-                    t.DueDate, 
-                    t.Priority, 
-                    t.UserId
-                ))
-                .ToListAsync(cancellationToken);
+            var items = await repository.GetTodoItemsByUserIdAsync(userId, cancellationToken);
+            
+            return items.Select(t => new TodoItemResponse(
+                t.Id, 
+                t.Title, 
+                t.Description ?? string.Empty, 
+                t.IsCompleted, 
+                t.DueDate, 
+                t.Priority, 
+                t.UserId
+            )).ToList();
         }
 
         public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req, Guid userId)
@@ -36,8 +34,7 @@ namespace TodoApp.Infrastructure.Services
                 UserId = userId
             };
 
-            db.TodoItems.Add(todoItem);
-            await db.SaveChangesAsync();
+            await repository.AddAsync(todoItem);
             
             return new TodoItemResponse(
                 todoItem.Id, 
@@ -52,8 +49,7 @@ namespace TodoApp.Infrastructure.Services
         
         public async Task<TodoItemResponse?> UpdateTodoItemAsync(int id, UpdateTodoItemRequest req, Guid userId)
         {
-            var todoItem = await db.TodoItems
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
 
             if (todoItem == null)
             {
@@ -66,7 +62,7 @@ namespace TodoApp.Infrastructure.Services
             todoItem.DueDate = req.DueDate;
             todoItem.Priority = req.Priority;
 
-            await db.SaveChangesAsync();
+            await repository.UpdateAsync(todoItem);
 
             return new TodoItemResponse(
                 todoItem.Id,
@@ -81,16 +77,14 @@ namespace TodoApp.Infrastructure.Services
         
         public async Task<bool> DeleteTodoItemAsync(int id, Guid userId)
         {
-            var todoItem = await db.TodoItems
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
 
             if (todoItem == null)
             {
                 return false; 
             }
 
-            db.TodoItems.Remove(todoItem);
-            await db.SaveChangesAsync();
+            await repository.DeleteAsync(todoItem);
 
             return true;
         }

@@ -1,5 +1,5 @@
 using TodoApp.Application.DTOs;
-using TodoApp.Domain.Models;
+using TodoApp.Domain.Entities;
 
 namespace TodoApp.Application.Interfaces;
 

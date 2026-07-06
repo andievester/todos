@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApp.Domain.Models;
+using TodoApp.Domain.Entities;
 
 namespace TodoApp.Infrastructure.Data
 {

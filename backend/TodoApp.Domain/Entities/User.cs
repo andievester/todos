@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TodoApp.Domain.Models
+namespace TodoApp.Domain.Entities
 {
     public class User
     {
