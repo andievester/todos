@@ -7,5 +7,7 @@ namespace TodoApp.Infrastructure.Data
     {
         public DbSet<User> Users => Set<User>();
         public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+        
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
 using TodoApp.Web.Endpoints.Interfaces;
@@ -27,14 +24,26 @@ namespace TodoApp.Web.Endpoints
 
             auth.MapPost("/login", async (LoginRequest req, IAuthService authService, CancellationToken cancellationToken) =>
             {
-                var token = await authService.LoginAsync(req, cancellationToken);
+                var response = await authService.LoginAsync(req, cancellationToken);
 
-                if (string.IsNullOrEmpty(token))
+                if (response is null)
                 {
                     return Results.Unauthorized();
                 }
 
-                return Results.Ok(new { Token = token });
+                return Results.Ok(response);
+            });
+
+            auth.MapPost("/refresh", async (RefreshTokenRequest req, IAuthService authService) =>
+            {
+                var response = await authService.RefreshTokenAsync(req);
+
+                if (response is null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                return Results.Ok(response);
             });
         }
     }

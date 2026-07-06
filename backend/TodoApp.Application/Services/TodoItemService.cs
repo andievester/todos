@@ -1,6 +1,6 @@
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
-using TodoApp.Domain.Entities;
+using TodoApp.Application.Mappers;
 
 namespace TodoApp.Application.Services
 {
@@ -10,40 +10,16 @@ namespace TodoApp.Application.Services
         {
             var items = await repository.GetTodoItemsByUserIdAsync(userId, cancellationToken);
             
-            return items.Select(t => new TodoItemResponse(
-                t.Id, 
-                t.Title, 
-                t.Description ?? string.Empty, 
-                t.IsCompleted, 
-                t.DueDate, 
-                t.Priority, 
-                t.UserId
-            )).ToList();
+            return items.Select(t => t.ToResponse()).ToList();
         }
 
         public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req, Guid userId)
         {
-            var todoItem = new TodoItem
-            {
-                Title = req.Title,
-                Description = req.Description,
-                IsCompleted = req.IsCompleted,
-                DueDate = req.DueDate,
-                Priority = req.Priority,
-                UserId = userId
-            };
+            var todoItem = req.ToEntity(userId);
 
             await repository.AddAsync(todoItem);
             
-            return new TodoItemResponse(
-                todoItem.Id, 
-                todoItem.Title, 
-                todoItem.Description ?? string.Empty, 
-                todoItem.IsCompleted, 
-                todoItem.DueDate, 
-                todoItem.Priority, 
-                todoItem.UserId
-            );
+            return todoItem.ToResponse();
         }
         
         public async Task<TodoItemResponse?> UpdateTodoItemAsync(int id, UpdateTodoItemRequest req, Guid userId)
@@ -55,23 +31,11 @@ namespace TodoApp.Application.Services
                 return null;
             }
 
-            todoItem.Title = req.Title;
-            todoItem.Description = req.Description;
-            todoItem.IsCompleted = req.IsCompleted;
-            todoItem.DueDate = req.DueDate;
-            todoItem.Priority = req.Priority;
+            req.UpdateEntity(todoItem);
 
             await repository.UpdateAsync(todoItem);
 
-            return new TodoItemResponse(
-                todoItem.Id,
-                todoItem.Title,
-                todoItem.Description ?? string.Empty,
-                todoItem.IsCompleted,
-                todoItem.DueDate,
-                todoItem.Priority,
-                todoItem.UserId
-            );
+            return todoItem.ToResponse();
         }
         
         public async Task<bool> DeleteTodoItemAsync(int id, Guid userId)

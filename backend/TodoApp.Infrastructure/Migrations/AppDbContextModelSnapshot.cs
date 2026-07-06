@@ -17,7 +17,34 @@ namespace TodoApp.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
 
-            modelBuilder.Entity("TodoApp.Domain.Models.TodoItem", b =>
+            modelBuilder.Entity("TodoApp.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("TodoApp.Domain.Entities.TodoItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +79,7 @@ namespace TodoApp.Infrastructure.Migrations
                     b.ToTable("TodoItems");
                 });
 
-            modelBuilder.Entity("TodoApp.Domain.Models.User", b =>
+            modelBuilder.Entity("TodoApp.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,18 +101,16 @@ namespace TodoApp.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TodoApp.Domain.Models.TodoItem", b =>
+            modelBuilder.Entity("TodoApp.Domain.Entities.TodoItem", b =>
                 {
-                    b.HasOne("TodoApp.Domain.Models.User", "User")
+                    b.HasOne("TodoApp.Domain.Entities.User", null)
                         .WithMany("TodoList")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TodoApp.Domain.Models.User", b =>
+            modelBuilder.Entity("TodoApp.Domain.Entities.User", b =>
                 {
                     b.Navigation("TodoList");
                 });

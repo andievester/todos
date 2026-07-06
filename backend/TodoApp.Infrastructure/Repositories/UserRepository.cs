@@ -22,5 +22,27 @@ namespace TodoApp.Infrastructure.Repositories
         {
             return await db.Users.SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
         }
+
+        public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await db.Users.SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
+        }
+
+        public async Task AddRefreshTokenAsync(RefreshToken token)
+        {
+            db.RefreshTokens.Add(token);
+            await db.SaveChangesAsync();
+        }
+
+        public async Task<RefreshToken?> GetRefreshTokenAsync(string token, CancellationToken cancellationToken = default)
+        {
+            return await db.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == token, cancellationToken);
+        }
+
+        public async Task UpdateRefreshTokenAsync(RefreshToken token)
+        {
+            db.RefreshTokens.Update(token);
+            await db.SaveChangesAsync();
+        }
     }
 }

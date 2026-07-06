@@ -5,6 +5,7 @@ namespace TodoApp.Application.Interfaces;
 
 public interface IAuthService
 {
-    Task<(bool Success, string ErrorMessage, User? User)> RegisterAsync(RegisterRequest req);
-    Task<string?> LoginAsync(LoginRequest req, CancellationToken cancellationToken = default);
+    Task<(bool Success, string ErrorMessage, UserResponseDto? User)> RegisterAsync(RegisterRequest req);
+    Task<AuthResponse?> LoginAsync(LoginRequest req, CancellationToken cancellationToken = default);
+    Task<AuthResponse?> RefreshTokenAsync(RefreshTokenRequest req);
 }
