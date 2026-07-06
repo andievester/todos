@@ -1,12 +1,20 @@
-import axios from "axios";
-import { toast } from "sonner";
+import {
+  handleSessionExpired,
+  refreshSession,
+} from "@/features/auth/services/auth-service";
+import { tokenService } from "@/services/token-service";
+import axios, { type InternalAxiosRequestConfig } from "axios";
+
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:5185/api",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("jwt_token");
+axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = tokenService.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -15,18 +23,27 @@ axiosInstance.interceptors.request.use((config) => {
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("jwt_token");
+  async (error) => {
+    const originalRequest = error.config as CustomAxiosRequestConfig;
 
-      toast.error("Session expired", {
-        description: "Please log in again to continue.",
-      });
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest.url?.includes("/auth/login") &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
 
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+      try {
+        const newToken = await refreshSession();
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        handleSessionExpired();
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

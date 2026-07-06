@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useLogin } from "../hooks/useLogin";
 import { useRegister } from "../hooks/useRegister";
+import { REFRESH_TOKEN_KEY } from "@/services/token-service";
 
 const loginSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
@@ -55,6 +56,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     if (isLogin) {
       login(data, {
         onSuccess: (response) => {
+          localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
           setToken(response.token);
           navigate("/");
         },

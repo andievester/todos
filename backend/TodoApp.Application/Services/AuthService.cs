@@ -89,7 +89,7 @@ namespace TodoApp.Application.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(15), 
+                Expires = DateTime.UtcNow.AddMinutes(60), 
                 Issuer = config["Jwt:Issuer"],
                 Audience = config["Jwt:Audience"],
                 SigningCredentials = creds
