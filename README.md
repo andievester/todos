@@ -1,10 +1,12 @@
-## Todo Application
+# Todo Application
 
 This repository contains a full-stack Todo application featuring a .NET 10 backend with SQLite and a React (Vite) frontend. With this application, a user can create an account, login, and create a personal set of Todo items. The Todo items are presented in a sortable table and are editable and removable. Overdue tasks are flagged in the UI, and completed tasks are showable/hideable.
 
-Follow the instructions below to configure and run the application in your local development environment.
+# Setup Instructions
 
-# Prerequisites
+Follow the instructions below after cloning the repo to configure and run the application in your local development environment.
+
+## Prerequisites
 
 Ensure you have the following installed on your machine before proceeding:
 
@@ -24,7 +26,7 @@ Ensure you have the following installed on your machine before proceeding:
 
   - Install globally via: `dotnet tool install --global dotnet-ef`
 
-# Backend Setup (.NET 10)
+## Backend Setup (.NET 10)
 
 The backend API is built with ASP.NET Core and uses Entity Framework Core with a SQLite database.
 
@@ -49,7 +51,7 @@ The backend API is built with ASP.NET Core and uses Entity Framework Core with a
    Apply the migration to create the SQLite database:
    `dotnet ef database update --project backend/TodoApp.Infrastructure --startup-project backend/TodoApp.Web`
 
-# Frontend Setup (React + Vite)
+## Frontend Setup (React + Vite)
 
 The frontend is a React application powered by Vite, utilizing Shadcn/UI and TanStack Query.
 
@@ -65,7 +67,7 @@ The frontend is a React application powered by Vite, utilizing Shadcn/UI and Tan
    `VITE_API_URL=http://localhost:5185/api`
    Save the file.
 
-# Running the Application
+## Running the Application
 
 You will need two terminal windows open to run the full stack simultaneously.
 
@@ -73,9 +75,11 @@ You will need two terminal windows open to run the full stack simultaneously.
 
 - Terminal 2: Start the frontend client from the frontend directory: `npm run dev`
 
+Now, you can create an account, login with your new credentials, and start tracking your things to do!
+
 The API will typically run on `http://localhost:5185`, and the Vite frontend will be available at `http://localhost:5173`. Check your terminal output for the exact local ports, and return to step 2 of the Frontend Setup section if your actual backend port differs from the one provided there.
 
-## Testing
+# Testing
 
 This application supports dedicated testing suites for both the frontend and backend projects.
 
@@ -89,7 +93,7 @@ This application supports dedicated testing suites for both the frontend and bac
   - From the root directory, navigate to the frontend directory: `cd frontend`
   - Execute the test suite: `npm run test`
 
-## Future Enhancements
+# Future Enhancements
 
 There are several things that I left out of this application in the interest of avoiding over-engineering for an MVP. Here are some things that are not included in this version of the application, but would be added in subsequent iterations:
 
