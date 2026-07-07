@@ -93,20 +93,20 @@ This application supports dedicated testing suites for both the frontend and bac
 
 There are several things that I left out of this application in the interest of avoiding over-engineering for an MVP. Here are some things that are not included in this version of the application, but would be added in subsequent iterations:
 
-- **Server-side pagination.** Right now, the data is simple and the initial use cases are small. For scalability, I would implement pagination + either manual paging in the UI or infinite scroll. This initiative would also include:
+- **Server-side pagination:** Right now, the data is simple and the initial use cases are small. For scalability, I would implement pagination + either manual paging in the UI or infinite scroll. This initiative would also include:
 
   - Database-level filtering via URL query parameters to enable search/filter
   - Moving the table sort logic from the browser (TanStack Table) to the server
 
-- **Auth enhancements.** The current state of auth is simple, using JWT, refresh tokens, and a renewal cycle. To expand upon the auth feature, here are some things I would consider:
+- **Auth enhancements:** The current state of auth is simple, using JWT, refresh tokens, and a renewal cycle. To expand upon the auth feature, here are some things I would consider:
 
   - A password recovery feature using time-bound, single-use tokens
   - Password strength and auditing using a library such as `zxcvbn`
   - OAuth 2.0 to allow users to authenticate using established third-party providers
 
-- **User Settings/Account Management** This would allow the user to make changes to their password, add an avatar or image, delete their account, etc.
+- **User Settings/Account Management:** This would allow the user to make changes to their password, add an avatar or image, delete their account, etc.
 
-- **Soft Deletes.** Instead of permanently dropping a record from the database, items would be marked as deleted via a boolean flag. This provides the ability to recover accidentally deleted tasks.
+- **Soft deletes:** Instead of permanently dropping a record from the database, items would be marked as deleted via a boolean flag. This provides the ability to recover accidentally deleted tasks.
 
 - **Some miscellaneous fun features to consider:**
 
@@ -117,4 +117,4 @@ There are several things that I left out of this application in the interest of 
   - A theme selector and a light mode at minimum
   - Scheduled reminders. A tool such as Hangfire could be utilized for backend processing to send email or push notifications when a todo item is nearing its due date
 
-- **Test suite expansion.** The MVP currently tests the minimum happy/sad paths with unit tests and narrow integration tests. To improve the test suites, I would expand the test coverage to cover most or all testable code, and write end-to-end tests for the frontend.
+- **Test suite expansion:** The MVP currently tests the minimum happy/sad paths with unit tests and narrow integration tests. To improve the test suites, I would expand the test coverage to cover most or all testable code, and write end-to-end tests for the frontend.
