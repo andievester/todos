@@ -18,7 +18,7 @@ Ensure you have the following installed on your machine before proceeding:
 
   - Visit the official download page: https://nodejs.org/en
   - Download the LTS version
-  - Verify installation of both tools: `node -v` `npm -v`
+  - Verify installation of both tools: `node -v` and `npm -v`
 
 - Entity Framework Core CLI Tools
 
@@ -73,7 +73,7 @@ You will need two terminal windows open to run the full stack simultaneously.
 
 - Terminal 2: Start the frontend client from the frontend directory: `npm run dev`
 
-The API will typically run on `http://locahost:5185`, and the Vite frontend will be available at `http://localhost:5173`. Check your terminal output for the exact local ports, and return to step 2 of the Frontend Setup section if your actual backend port differs from the one provided there.
+The API will typically run on `http://localhost:5185`, and the Vite frontend will be available at `http://localhost:5173`. Check your terminal output for the exact local ports, and return to step 2 of the Frontend Setup section if your actual backend port differs from the one provided there.
 
 ## Testing
 
@@ -106,7 +106,7 @@ There are several things that I left out of this application in the interest of 
 
 - **User Settings/Account Management** This would allow the user to make changes to their password, add an avatar or image, delete their account, etc.
 
-- **Soft Deletes.** Intead of permanently dropping a record from the database, items would be marked as deleted via a boolean flag. This provides the ability to recover accidentally deleted tasks.
+- **Soft Deletes.** Instead of permanently dropping a record from the database, items would be marked as deleted via a boolean flag. This provides the ability to recover accidentally deleted tasks.
 
 - **Some miscellaneous fun features to consider:**
 
