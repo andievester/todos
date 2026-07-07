@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTodo, updateTodo } from "../services/todos-service";
+import { create, update } from "../services/todos-service";
 import type { TodoFormValues } from "../components/TodoForm";
 import { toast } from "sonner";
 import { TODOS_QUERY_KEY } from "./useTodos";
@@ -23,9 +23,9 @@ export function useSaveTodo() {
       };
 
       if (id) {
-        return await updateTodo(id, payload);
+        return await update(id, payload);
       }
-      return await createTodo(payload);
+      return await create(payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODOS_QUERY_KEY });

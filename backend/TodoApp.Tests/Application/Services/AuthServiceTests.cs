@@ -33,7 +33,6 @@ public class AuthServiceTests
         var user = new User { Email = "test@test.com", PasswordHash = "hashed" };
         _mockRepo.Setup(r => r.GetUserByEmailAsync("test@test.com", default)).ReturnsAsync(user);
 
-        // Mock the hasher to fail verification
         _mockHasher.Setup(h => h.Verify("wrong", "hashed")).Returns(false);
 
         // Act

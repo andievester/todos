@@ -9,7 +9,7 @@ public class UserRepository(AppDbContext db) : IUserRepository
 {
     public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = email.ToLower();
+        var normalizedEmail = NormalizeEmail(email);
         return await db.Users.AnyAsync(u => u.Email.ToLower() == normalizedEmail, cancellationToken);
     }
 
@@ -21,7 +21,8 @@ public class UserRepository(AppDbContext db) : IUserRepository
 
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await db.Users.SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
+        var normalizedEmail = NormalizeEmail(email);
+        return await db.Users.SingleOrDefaultAsync(u => u.Email == normalizedEmail, cancellationToken);
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -44,5 +45,10 @@ public class UserRepository(AppDbContext db) : IUserRepository
     {
         db.RefreshTokens.Update(token);
         await db.SaveChangesAsync();
+    }
+
+    private static string NormalizeEmail(string email)
+    {
+        return email.Trim().ToLowerInvariant();
     }
 }

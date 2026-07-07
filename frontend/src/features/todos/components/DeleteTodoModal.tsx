@@ -24,10 +24,10 @@ export function DeleteTodoModal({
   todoId,
   todoTitle,
 }: DeleteTodoModalProps) {
-  const { mutate: deleteTodo, isPending: isPendingDelete } = useDeleteTodo();
+  const { mutate: deleteById, isPending: isPendingDelete } = useDeleteTodo();
   const handleDelete = () => {
     if (todoId) {
-      deleteTodo(Number(todoId), {
+      deleteById(Number(todoId), {
         onSuccess: () => {
           onOpenChange(false);
         },

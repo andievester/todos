@@ -3,19 +3,17 @@ import type { CreateTodoPayload, TodoItem, UpdateTodoPayload } from "../types";
 
 const TODOS_API_ENDPOINT = "/todos";
 
-export const getTodos = async (): Promise<TodoItem[]> => {
+export const get = async (): Promise<TodoItem[]> => {
   const response = await axiosInstance.get<TodoItem[]>(TODOS_API_ENDPOINT);
   return response.data;
 };
 
-export const createTodo = async (
-  data: CreateTodoPayload
-): Promise<TodoItem> => {
+export const create = async (data: CreateTodoPayload): Promise<TodoItem> => {
   const response = await axiosInstance.post<TodoItem>(TODOS_API_ENDPOINT, data);
   return response.data;
 };
 
-export const updateTodo = async (
+export const update = async (
   id: number,
   data: UpdateTodoPayload
 ): Promise<TodoItem> => {
@@ -26,6 +24,6 @@ export const updateTodo = async (
   return response.data;
 };
 
-export const deleteTodo = async (id: number): Promise<void> => {
+export const deleteById = async (id: number): Promise<void> => {
   await axiosInstance.delete(`${TODOS_API_ENDPOINT}/${id}`);
 };

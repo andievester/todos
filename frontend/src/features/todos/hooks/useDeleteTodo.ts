@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTodo } from "../services/todos-service";
+import { deleteById } from "../services/todos-service";
 import { toast } from "sonner";
 import { TODOS_QUERY_KEY } from "./useTodos";
 
@@ -8,7 +8,7 @@ export function useDeleteTodo() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      return await deleteTodo(id);
+      return await deleteById(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TODOS_QUERY_KEY });

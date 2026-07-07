@@ -2,54 +2,48 @@ using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
 using TodoApp.Application.Mappers;
 
-namespace TodoApp.Application.Services
+namespace TodoApp.Application.Services;
+
+public class TodoItemService(ITodoItemRepository repository) : ITodoItemService
 {
-    public class TodoItemService(ITodoItemRepository repository) : ITodoItemService
+    public async Task<List<TodoItemResponse>> GetByUserIdAsync(Guid userId,
+        CancellationToken cancellationToken = default)
     {
-        public async Task<List<TodoItemResponse>> GetTodoItemsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-        {
-            var items = await repository.GetTodoItemsByUserIdAsync(userId, cancellationToken);
-            
-            return items.Select(t => t.ToResponse()).ToList();
-        }
+        var items = await repository.GetByUserIdAsync(userId, cancellationToken);
 
-        public async Task<TodoItemResponse> CreateTodoItemAsync(CreateTodoItemRequest req, Guid userId)
-        {
-            var todoItem = req.ToEntity(userId);
+        return items.Select(t => t.ToResponse()).ToList();
+    }
 
-            await repository.AddAsync(todoItem);
-            
-            return todoItem.ToResponse();
-        }
-        
-        public async Task<TodoItemResponse?> UpdateTodoItemAsync(int id, UpdateTodoItemRequest req, Guid userId)
-        {
-            var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
+    public async Task<TodoItemResponse> CreateAsync(CreateTodoItemRequest req, Guid userId)
+    {
+        var todoItem = req.ToEntity(userId);
 
-            if (todoItem == null)
-            {
-                return null;
-            }
+        await repository.AddAsync(todoItem);
 
-            req.UpdateEntity(todoItem);
+        return todoItem.ToResponse();
+    }
 
-            await repository.UpdateAsync(todoItem);
+    public async Task<TodoItemResponse?> UpdateAsync(int id, UpdateTodoItemRequest req, Guid userId)
+    {
+        var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
 
-            return todoItem.ToResponse();
-        }
-        
-        public async Task<bool> DeleteTodoItemAsync(int id, Guid userId)
-        {
-            var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
+        if (todoItem == null) return null;
 
-            if (todoItem == null)
-            {
-                return false; 
-            }
+        req.UpdateEntity(todoItem);
 
-            await repository.DeleteAsync(todoItem);
+        await repository.UpdateAsync(todoItem);
 
-            return true;
-        }
+        return todoItem.ToResponse();
+    }
+
+    public async Task<bool> DeleteAsync(int id, Guid userId)
+    {
+        var todoItem = await repository.GetByIdAndUserIdAsync(id, userId);
+
+        if (todoItem == null) return false;
+
+        await repository.DeleteAsync(todoItem);
+
+        return true;
     }
 }

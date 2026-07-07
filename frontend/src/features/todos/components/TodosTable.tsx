@@ -281,7 +281,8 @@ export const TodosTable = ({
                   className="h-24 text-center"
                 >
                   <span className="font-medium">
-                    No todos yet. Create one using the New + button!
+                    No todos to display! Create a new one or adjust your
+                    filters.
                   </span>
                 </TableCell>
               </TableRow>

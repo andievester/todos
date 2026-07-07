@@ -21,7 +21,7 @@ public class TodoItemEndpoints : IEndpoint
 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var items = await todoItemService.GetTodoItemsByUserIdAsync(Guid.Parse(userId), cancellationToken);
+                var items = await todoItemService.GetByUserIdAsync(Guid.Parse(userId), cancellationToken);
 
                 return Results.Ok(items);
             });
@@ -33,7 +33,7 @@ public class TodoItemEndpoints : IEndpoint
 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var createdTodoItem = await todoItemService.CreateTodoItemAsync(req, Guid.Parse(userId));
+                var createdTodoItem = await todoItemService.CreateAsync(req, Guid.Parse(userId));
 
                 return Results.Created($"/api/todos/{createdTodoItem.Id}", createdTodoItem);
             }).AddEndpointFilter<ValidationFilter<CreateTodoItemRequest>>();
@@ -45,7 +45,7 @@ public class TodoItemEndpoints : IEndpoint
 
                 if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-                var updatedItem = await todoItemService.UpdateTodoItemAsync(id, req, Guid.Parse(userId));
+                var updatedItem = await todoItemService.UpdateAsync(id, req, Guid.Parse(userId));
 
                 return updatedItem is not null
                     ? Results.Ok(updatedItem)
@@ -58,7 +58,7 @@ public class TodoItemEndpoints : IEndpoint
 
             if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-            var success = await todoItemService.DeleteTodoItemAsync(id, Guid.Parse(userId));
+            var success = await todoItemService.DeleteAsync(id, Guid.Parse(userId));
 
             return success
                 ? Results.NoContent()

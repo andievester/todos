@@ -5,7 +5,7 @@ import { tokenService } from "@/services/token-service";
 
 const AUTH_API_ENDPOINT = "/auth";
 
-export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
+export const login = async (data: AuthRequest): Promise<AuthResponse> => {
   const response = await axiosInstance.post<AuthResponse>(
     `${AUTH_API_ENDPOINT}/login`,
     data
@@ -13,9 +13,7 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
   return response.data;
 };
 
-export const registerUser = async (
-  data: AuthRequest
-): Promise<AuthResponse> => {
+export const register = async (data: AuthRequest): Promise<AuthResponse> => {
   const response = await axiosInstance.post<AuthResponse>(
     `${AUTH_API_ENDPOINT}/register`,
     data

@@ -12,6 +12,8 @@ using Microsoft.Extensions.Options;
 using Moq;
 using TodoApp.Application.DTOs;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.Mappers;
+using TodoApp.Domain.Entities;
 
 namespace TodoApp.Tests.Web.Endpoints;
 
@@ -45,7 +47,7 @@ public class TodoItemEndpointsTests : IClassFixture<WebApplicationFactory<Progra
             new(1, "Test Todo", "Description", false, null, 1, Guid.NewGuid())
         };
 
-        _mockService.Setup(s => s.GetTodoItemsByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _mockService.Setup(s => s.GetByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(mockResponse);
 
         // Act
@@ -67,7 +69,7 @@ public class TodoItemEndpointsTests : IClassFixture<WebApplicationFactory<Progra
         var client = _factory.CreateClient();
         var requestDto = new UpdateTodoItemRequest("Update", "Desc", false, null, 2);
 
-        _mockService.Setup(s => s.UpdateTodoItemAsync(999, requestDto, _testUserId))
+        _mockService.Setup(s => s.UpdateAsync(999, requestDto, _testUserId))
             .ReturnsAsync((TodoItemResponse?)null);
 
         // Act
@@ -120,17 +122,20 @@ public class TodoItemEndpointsTests : IClassFixture<WebApplicationFactory<Progra
             1
         );
 
-        var mockResponse = new TodoItemResponse(
-            todoId,
-            request.Title,
-            request.Description,
-            request.IsCompleted,
-            request.DueDate,
-            request.Priority,
-            Guid.NewGuid()
-        );
+        var mockEntity = new TodoItem
+        {
+            Id = todoId,
+            Title = request.Title,
+            Description = request.Description,
+            IsCompleted = request.IsCompleted,
+            DueDate = request.DueDate,
+            Priority = request.Priority,
+            UserId = _testUserId
+        };
 
-        _mockService.Setup(s => s.UpdateTodoItemAsync(todoId, request, It.IsAny<Guid>()))
+        var mockResponse = mockEntity.ToResponse();
+
+        _mockService.Setup(s => s.UpdateAsync(todoId, request, It.IsAny<Guid>()))
             .ReturnsAsync(mockResponse);
 
         // Act
@@ -153,7 +158,7 @@ public class TodoItemEndpointsTests : IClassFixture<WebApplicationFactory<Progra
         var client = _factory.CreateClient();
         var todoId = 1;
 
-        _mockService.Setup(s => s.DeleteTodoItemAsync(todoId, It.IsAny<Guid>()))
+        _mockService.Setup(s => s.DeleteAsync(todoId, It.IsAny<Guid>()))
             .ReturnsAsync(true);
 
         // Act
