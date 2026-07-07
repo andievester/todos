@@ -8,7 +8,7 @@ export const AppRoutes = () => {
     ...AuthRoutes,
 
     {
-      path: "/todos",
+      path: "/todos/*",
       element: (
         <ProtectedRoute>
           <TodosRoutes />

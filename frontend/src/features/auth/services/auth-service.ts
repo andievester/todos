@@ -3,8 +3,13 @@ import { toast } from "sonner";
 import type { AuthRequest, AuthResponse } from "../types";
 import { tokenService } from "@/services/token-service";
 
+const AUTH_API_ENDPOINT = "/auth";
+
 export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
-  const response = await axiosInstance.post<AuthResponse>("/auth/login", data);
+  const response = await axiosInstance.post<AuthResponse>(
+    `${AUTH_API_ENDPOINT}/login`,
+    data
+  );
   return response.data;
 };
 
@@ -12,7 +17,7 @@ export const registerUser = async (
   data: AuthRequest
 ): Promise<AuthResponse> => {
   const response = await axiosInstance.post<AuthResponse>(
-    "/auth/register",
+    `${AUTH_API_ENDPOINT}/register`,
     data
   );
   return response.data;
@@ -28,7 +33,7 @@ export const refreshSession = async (): Promise<string> => {
   const response = await axiosInstance.post<{
     token: string;
     refreshToken: string;
-  }>("/auth/refresh", { refreshToken });
+  }>(`${AUTH_API_ENDPOINT}/refresh`, { refreshToken });
 
   tokenService.setTokens(response.data.token, response.data.refreshToken);
   return response.data.token;

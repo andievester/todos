@@ -1,7 +1,6 @@
 <Solution>
   <Folder Name="/backend/">
     <Project Path="backend/TodoApp.Application/TodoApp.Application.csproj" />
-    <Project Path="backend/TodoApp.BuildingBlocks/TodoApp.BuildingBlocks.csproj" />
     <Project Path="backend/TodoApp.Domain/TodoApp.Domain.csproj" />
     <Project Path="backend/TodoApp.Infrastructure/TodoApp.Infrastructure.csproj" />
     <Project Path="backend/TodoApp.Tests/TodoApp.Tests.csproj" />
