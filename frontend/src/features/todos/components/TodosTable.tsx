@@ -45,8 +45,6 @@ const getColumnClasses = (columnId: string) => {
   }
 };
 
-// TODO: refactor some of this
-
 interface TodosTableProps {
   todos: TodoItem[];
   onRowClick?: (todo: TodoItem) => void;

@@ -14,8 +14,6 @@ export const TodosPage = () => {
 
   const { data: todos = [], isLoading, isError } = useTodos();
 
-  console.log("todos:", todos);
-
   const handleOpenNew = () => {
     setEditingTodo(null);
     setIsModalOpen(true);

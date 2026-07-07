@@ -12,7 +12,6 @@ export function TodoModal({ open, onOpenChange, todo }: TodoModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        onOpenAutoFocus={(e) => e.preventDefault()}
         onInteractOutside={(event) => {
           event.preventDefault();
         }}
