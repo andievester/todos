@@ -3,17 +3,26 @@ using System.ComponentModel.DataAnnotations;
 namespace TodoApp.Application.DTOs;
 
 public record RegisterRequest(
-    [Required, EmailAddress] string Email, 
-    [Required, MinLength(8)] string Password
+    [property: Required]
+    [property: EmailAddress]
+    string Email,
+    [property: Required]
+    [property: MinLength(8)]
+    string Password
 );
+
 public record LoginRequest(
-    [Required, EmailAddress] string Email, 
-    [Required] string Password
+    [property: Required]
+    [property: EmailAddress]
+    string Email,
+    [property: Required] string Password
 );
+
 public record AuthResponse(
     string Token,
     string RefreshToken
 );
+
 public record RefreshTokenRequest(
-    [Required] string RefreshToken
+    [property: Required] string RefreshToken
 );
