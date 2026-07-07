@@ -77,7 +77,7 @@ You will need two terminal windows open to run the full stack simultaneously.
 
 Now, you can create an account, login with your new credentials, and start tracking your things to do!
 
-The API will typically run on `http://localhost:5185`, and the Vite frontend will be available at `http://localhost:5173`. Check your terminal output for the exact local ports, and return to step 2 of the Frontend Setup section if your actual backend port differs from the one provided there.
+**Note:** The API will typically run on `http://localhost:5185`, and the Vite frontend will be available at `http://localhost:5173`. Check your terminal output for the exact local ports, and return to step 2 of the Frontend Setup section if your actual backend port differs from the one provided there.
 
 # Testing
 
