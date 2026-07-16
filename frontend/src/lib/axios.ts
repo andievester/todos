@@ -21,6 +21,23 @@ axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: () => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,13 +51,33 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
 
+      if (isRefreshing) {
+        return new Promise<void>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            const newToken = tokenService.getToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      isRefreshing = true;
+
       try {
         const newToken = await refreshSession();
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+        processQueue(null);
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError);
         handleSessionExpired();
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
